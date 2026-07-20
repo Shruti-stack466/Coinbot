@@ -1,0 +1,16 @@
+# Raw source archives — the coin photos are already extracted into Visuals/coins/
+*.zip
+
+# Local backups, not needed to run the game
+Visuals/originals/
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.log
+.vscode/
+.idea/
+
+# Node
+node_modules/

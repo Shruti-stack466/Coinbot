@@ -1,0 +1,8 @@
+# Normalize text line endings; keep binaries untouched
+* text=auto
+*.png binary
+*.jpg binary
+*.mp4 binary
+*.woff2 binary
+*.mp3 binary
+*.wav binary
