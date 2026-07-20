@@ -819,6 +819,25 @@ function startTalk(){ if(!robotEl)return; stopTalk();
 }
 function stopTalk(){if(talkTimer){clearInterval(talkTimer);talkTimer=null;}}
 
+/* Word-by-word typewriter: reveals `text` one word at a time into `el`. */
+function typeWords(el,text,{speed=90,done}={}){
+  const parts=String(text).split(/(\s+)/); // words + the spaces between them
+  el.textContent='';let i=0;
+  const timer=setInterval(()=>{el.textContent+=parts[i++]||'';
+    if(i>=parts.length){clearInterval(timer);done&&done();}},speed);
+  return timer;
+}
+/* typing.mp3 is short, so loop it while a dialogue line types, and stop when it's done. */
+let typingLoop=null;
+function startTypingLoop(){
+  if(muted)return;
+  try{
+    if(!typingLoop){typingLoop=new Audio('Audio/typing.mp3');typingLoop.loop=true;typingLoop.volume=.5;}
+    typingLoop.currentTime=0;typingLoop.play().catch(()=>{});
+  }catch(e){}
+}
+function stopTypingLoop(){if(typingLoop){try{typingLoop.pause();}catch(e){}}}
+
 function say(lines,opts={}){
   return new Promise(resolve=>{
     lines=lines.slice();
@@ -836,24 +855,26 @@ function say(lines,opts={}){
     const txt=bubble.querySelector('.txt');
     let cur='',typing=false,idx=0,timer=null;
     function type(line){
-      typing=true;cur=line;txt.textContent='';idx=0;sfx('click');
+      typing=true;cur=line;txt.textContent='';
       // the robot lip-syncs only its own quoted lines, not the narrator's
       if(robotEl&&!opts.noTalk){/^["“]/.test(line.trim())?startTalk():stopTalk();}
-      timer=setInterval(()=>{idx++;txt.textContent=line.slice(0,idx);
-        if(idx>=line.length){clearInterval(timer);typing=false;}},17);
+      const parts=line.split(/(\s+)/);let wi=0; // reveal word by word
+      startTypingLoop(); // typing sound plays for as long as the line is typing
+      timer=setInterval(()=>{txt.textContent+=parts[wi++]||'';
+        if(wi>=parts.length){clearInterval(timer);typing=false;stopTypingLoop();}},95);
     }
     function next(){
-      if(typing){clearInterval(timer);txt.textContent=cur;typing=false;return;}
+      if(typing){clearInterval(timer);txt.textContent=cur;typing=false;stopTypingLoop();return;}
       if(!lines.length){cleanup();return;}
       type(lines.shift());
     }
     function cleanup(){
-      tz.remove();removeEventListener('keydown',onkey);stopTalk();
+      tz.remove();removeEventListener('keydown',onkey);stopTalk();stopTypingLoop();
       if(opts.keepBubble!==true)bubble.remove();
       resolve();
     }
-    function onkey(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();next();}}
-    tz.onclick=next;
+    function onkey(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();sfx('click');next();}}
+    tz.onclick=()=>{sfx('click');next();};
     addEventListener('keydown',onkey);
     next();
   });
@@ -898,8 +919,21 @@ function waitBtn(btn){return new Promise(r=>btn.addEventListener('click',()=>{sf
 function popup(html){ // returns promise resolving with data-val of clicked .pbtn
   return new Promise(r=>{
     stage.insertAdjacentHTML('beforeend',`<div class="overlay fade-in"><div class="panel">${html}</div></div>`);
-    stage.lastElementChild.querySelectorAll('.pbtn').forEach(b=>b.onclick=()=>{
-      sfx('click');const v=b.dataset.val;stage.querySelector('.overlay').remove();r(v);});
+    const overlay=stage.lastElementChild,panel=overlay.querySelector('.panel');
+    overlay.querySelectorAll('.pbtn').forEach(b=>b.onclick=()=>{
+      sfx('click');const v=b.dataset.val;overlay.remove();r(v);});
+    // type the prompt text word-by-word (pure-text headings/paragraphs), then reveal the buttons
+    const textEls=[...panel.querySelectorAll('h3,p')].filter(el=>!el.children.length);
+    const row=panel.querySelector('.row');
+    if(textEls.length){
+      const texts=textEls.map(el=>el.textContent);
+      textEls.forEach(el=>el.textContent='');
+      if(row)row.style.visibility='hidden';
+      let k=0;(function step(){
+        if(k>=textEls.length){if(row)row.style.visibility='';return;}
+        typeWords(textEls[k],texts[k],{speed:85,done:()=>{k++;setTimeout(step,140);}});
+      })();
+    }
   });
 }
 function trayRow(ly,trays){ // trays:[{id,label,color,cls}]
@@ -916,7 +950,7 @@ function dropInTray(id,item){
     coins.insertAdjacentHTML('beforeend',imgTag(item));
     if(item.back)coins.lastElementChild.dataset.back='Visuals/'+encodeURI(item.back); // for the flip finale
   }
-  sfx('tray-drop');
+  sfx('correct-chime'); // chime on tray drop (per audio spec)
 }
 
 /* =====================================================================
@@ -967,10 +1001,10 @@ async function trainingScene(cfg){
            <div class="face b">${backTag(item)}</div>
          </div></div>`;
     const c=$('#cardslot .card'); // tap the polaroid to flip it any time
-    c.onclick=()=>{c.classList.toggle('flipped');sfx('click');};
+    c.onclick=()=>{c.classList.toggle('flipped');sfx('correct-chime');}; // coin sound on tap
     if(item.back){
       cardReady=false;setLabels(false);
-      flipTimers.push(setTimeout(()=>{c.classList.add('flipped');sfx('card-whoosh');},2000));
+      flipTimers.push(setTimeout(()=>{c.classList.add('flipped');sfx('correct-chime');},2000)); // coin sound on flip
       flipTimers.push(setTimeout(()=>{c.classList.remove('flipped');},3900));
       flipTimers.push(setTimeout(()=>{cardReady=true;if(introDone)setLabels(true);},4200));
     }else{cardReady=true;if(introDone)setLabels(true);}
@@ -1007,11 +1041,13 @@ async function trainingScene(cfg){
     // L2/L3 value training: if the chosen value differs from the coin's real denomination,
     // confirm before accepting (a nudge, not a silent correction — the child can still say yes).
     if(cfg.model===valueModel&&cur.denom&&String(cur.denom)!==String(val)){
+      sfx('check-again');
       await popup(`<h3>Check once again</h3>
         <p>Look closely at this coin and its value before choosing.</p>
         <div class="row"><button class="pbtn amber" data-val="ok">Check again</button></div>`);
       return; // don't accept — same card stays so the child re-looks and picks again
     }
+    sfx('click'); // tab press
     labelBtns.forEach(b=>b.disabled=true);
     btn.classList.add('flash');sfx('learn-pulse');
     cfg.model.train(cur.key,val,cfg.trainPhase);
@@ -1150,7 +1186,7 @@ async function showcaseTrays(){
     const dy=(sr.top+sr.height*0.44-(r.top+r.height/2))/sc;
     tray.style.transition='transform .5s ease';tray.style.transformOrigin='center center';
     tray.style.zIndex='30';tray.style.transform=`translate(${dx}px,${dy}px) scale(2.3)`;
-    tray.classList.add('tShow');sfx('tray-drop');
+    tray.classList.add('tShow');sfx('correct-chime');
     await sleep(620);
     // coins pulse one at a time to invite a tap: tap1 = enlarge for a clear look,
     // tap2 = flip to the other side, tap3 = settle back → next coin pulses.
@@ -1166,9 +1202,9 @@ async function showcaseTrays(){
         let taps=0;
         scc.onclick=()=>{
           taps++;
-          if(taps===1){scc.classList.remove('pulse');scc.classList.add('grow');sfx('click');}
-          else if(taps===2){flip.classList.add('flip');sfx('card-whoosh');}
-          else{scc.onclick=null;flip.classList.remove('flip');scc.classList.remove('grow');sfx('click');setTimeout(resolve,320);}
+          if(taps===1){scc.classList.remove('pulse');scc.classList.add('grow');sfx('correct-chime');}
+          else if(taps===2){flip.classList.add('flip');sfx('correct-chime');}
+          else{scc.onclick=null;flip.classList.remove('flip');scc.classList.remove('grow');sfx('correct-chime');setTimeout(resolve,320);}
         };
       });
       scc.replaceWith(img); // restore the plain tray coin
@@ -1622,7 +1658,7 @@ async function inspectScene(items){
     if(viewed.size>=items.length)doneBtn.disabled=false; // Done unlocks only when every unsure coin is checked
     sfx('click');
   }
-  $('#ins-flip').onclick=()=>{$('#ins-flip').classList.toggle('flipped');sfx('click');}; // tap the coin to flip it
+  $('#ins-flip').onclick=()=>{$('#ins-flip').classList.toggle('flipped');sfx('correct-chime');}; // coin sound on tap
   $('#ins-prev').onclick=()=>{idx=Math.max(0,idx-1);render();};        // child taps ◀ ▶ to move between coins
   $('#ins-next').onclick=()=>{idx=Math.min(items.length-1,idx+1);render();};
   render();
@@ -1701,7 +1737,7 @@ function bigFlip(item){
   el.className='bigflip';
   el.innerHTML=`<div class="flipI"><div class="face f"><img src="Visuals/${encodeURI(item.file)}" data-fb="${item.ph}" alt=""></div>
     <div class="face b">${backTag(item)}</div></div>`;
-  stage.appendChild(el);sfx('click');
+  stage.appendChild(el);sfx('correct-chime'); // coin sound on tap
   requestAnimationFrame(()=>el.classList.add('show'));
   const fi=el.querySelector('.flipI');
   setTimeout(()=>{fi.style.transform='rotateY(180deg)';},3000); // big for 3s, then flip
