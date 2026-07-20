@@ -950,7 +950,7 @@ function dropInTray(id,item){
     coins.insertAdjacentHTML('beforeend',imgTag(item));
     if(item.back)coins.lastElementChild.dataset.back='Visuals/'+encodeURI(item.back); // for the flip finale
   }
-  sfx('correct-chime'); // chime on tray drop (per audio spec)
+  sfx(id==='unsure'?'unsure-boop':'correct-chime'); // boop into Unsure box, chime for confident value boxes
 }
 
 /* =====================================================================
@@ -1001,10 +1001,10 @@ async function trainingScene(cfg){
            <div class="face b">${backTag(item)}</div>
          </div></div>`;
     const c=$('#cardslot .card'); // tap the polaroid to flip it any time
-    c.onclick=()=>{c.classList.toggle('flipped');sfx('correct-chime');}; // coin sound on tap
+    c.onclick=()=>{c.classList.toggle('flipped');sfx('card-whoosh');}; // whoosh when the polaroid flips
     if(item.back){
       cardReady=false;setLabels(false);
-      flipTimers.push(setTimeout(()=>{c.classList.add('flipped');sfx('correct-chime');},2000)); // coin sound on flip
+      flipTimers.push(setTimeout(()=>{c.classList.add('flipped');sfx('card-whoosh');},2000)); // whoosh when the polaroid flips
       flipTimers.push(setTimeout(()=>{c.classList.remove('flipped');},3900));
       flipTimers.push(setTimeout(()=>{cardReady=true;if(introDone)setLabels(true);},4200));
     }else{cardReady=true;if(introDone)setLabels(true);}
@@ -1202,9 +1202,9 @@ async function showcaseTrays(){
         let taps=0;
         scc.onclick=()=>{
           taps++;
-          if(taps===1){scc.classList.remove('pulse');scc.classList.add('grow');sfx('correct-chime');}
-          else if(taps===2){flip.classList.add('flip');sfx('correct-chime');}
-          else{scc.onclick=null;flip.classList.remove('flip');scc.classList.remove('grow');sfx('correct-chime');setTimeout(resolve,320);}
+          if(taps===1){scc.classList.remove('pulse');scc.classList.add('grow');sfx('click');}
+          else if(taps===2){flip.classList.add('flip');sfx('card-whoosh');} // whoosh on flip
+          else{scc.onclick=null;flip.classList.remove('flip');scc.classList.remove('grow');setTimeout(resolve,320);}
         };
       });
       scc.replaceWith(img); // restore the plain tray coin
@@ -1443,14 +1443,13 @@ async function l1Review(results){
     for(const s of sizes){html+='<div class="rvRow">'+items.slice(idx,idx+s).map(cell).join('')+'</div>';idx+=s;}
     $('#reviewGrid').innerHTML=html;
   }
-  $('#reviewGrid').onclick=e=>{ // tap a polaroid: it enlarges, then flips to its back after 3s
+  $('#reviewGrid').onclick=e=>{ // tap a polaroid: tap1 = enlarge, tap2 = flip, tap3 = settle back
     const it=e.target.closest('.rItem');
     if(!it)return;
-    sfx('click');
-    if(it.classList.contains('zoom')){it.classList.remove('zoom','flipped');clearTimeout(it._ft);return;}
-    it.classList.add('zoom');
-    clearTimeout(it._ft);
-    it._ft=setTimeout(()=>it.classList.add('flipped'),3000);
+    const taps=(it._taps||0)+1;it._taps=taps;
+    if(taps===1){sfx('click');it.classList.add('zoom');}          // enlarge for a clear look
+    else if(taps===2){sfx('card-whoosh');it.classList.add('flipped');} // flip to the back
+    else{it.classList.remove('zoom','flipped');it._taps=0;}        // settle back
   };
   function setMode(m){mode=m;sfx('click');
     $('#tglGood').classList.toggle('active',m==='good');
@@ -1658,7 +1657,7 @@ async function inspectScene(items){
     if(viewed.size>=items.length)doneBtn.disabled=false; // Done unlocks only when every unsure coin is checked
     sfx('click');
   }
-  $('#ins-flip').onclick=()=>{$('#ins-flip').classList.toggle('flipped');sfx('correct-chime');}; // coin sound on tap
+  $('#ins-flip').onclick=()=>{$('#ins-flip').classList.toggle('flipped');sfx('card-whoosh');}; // whoosh when the coin flips
   $('#ins-prev').onclick=()=>{idx=Math.max(0,idx-1);render();};        // child taps ◀ ▶ to move between coins
   $('#ins-next').onclick=()=>{idx=Math.min(items.length-1,idx+1);render();};
   render();
