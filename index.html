@@ -1004,9 +1004,9 @@ async function trainingScene(cfg){
     c.onclick=()=>{c.classList.toggle('flipped');sfx('card-whoosh');}; // whoosh when the polaroid flips
     if(item.back){
       cardReady=false;setLabels(false);
-      flipTimers.push(setTimeout(()=>{c.classList.add('flipped');sfx('card-whoosh');},2000)); // whoosh when the polaroid flips
-      flipTimers.push(setTimeout(()=>{c.classList.remove('flipped');},3900));
-      flipTimers.push(setTimeout(()=>{cardReady=true;if(introDone)setLabels(true);},4200));
+      flipTimers.push(setTimeout(()=>{c.classList.add('flipped');sfx('card-whoosh');},500)); // whoosh when the polaroid flips (1.5s faster)
+      flipTimers.push(setTimeout(()=>{c.classList.remove('flipped');},2400));
+      flipTimers.push(setTimeout(()=>{cardReady=true;if(introDone)setLabels(true);},2700));
     }else{cardReady=true;if(introDone)setLabels(true);}
   }
   function renderQueue(step){ // row of upcoming cards, marching in from the left edge
