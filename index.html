@@ -35,9 +35,15 @@
   .tbtn{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.4);color:#fff;
     border-radius:8px;padding:5px 11px;font-size:13px;cursor:pointer;font-family:inherit;}
   .tbtn:hover{background:rgba(255,255,255,.3);}
-  /* opening-video screen: hide the teal bar & game-name, keep dots/sound/restart in place */
+  /* opening-video screen: hide the teal bar & game-name; also hide sound + restart (keep dots only) */
   #topbar.video-mode{background:transparent;box-shadow:none;}
   #topbar.video-mode .logo{visibility:hidden;}
+  #topbar.video-mode #settingsBtn{display:none;}
+  /* Pause/Settings menu (§8): a single top-bar control that opens sound + restart in one place */
+  #settingsBtn{width:38px;height:38px;padding:0;font-size:20px;line-height:1;border-radius:10px;}
+  #settingsOv{background:rgba(5,12,20,.55);}
+  #settingsOv .panel{min-width:320px;}
+  #settingsOv .row{flex-direction:column;align-items:stretch;gap:14px;}
   /* home screen: no chrome at all (bar + dots + sound + restart all hidden) */
   #topbar.home-hidden{display:none;}
 
@@ -68,7 +74,7 @@
     font-size:46px;font-weight:700;color:#F2F7FA;text-shadow:0 2px 10px rgba(0,0,0,.5);}
   #bubble{position:absolute;left:50%;bottom:56px;transform:translateX(-50%);
     max-width:660px;min-width:340px;background:var(--bubble);border-radius:10px;
-    padding:18px 52px 18px 22px;font-size:25px;line-height:1.45;color:#fff;z-index:30;
+    padding:18px 40px;font-size:25px;line-height:1.45;color:#fff;z-index:30;text-align:center;
     box-shadow:0 6px 24px rgba(0,0,0,.45);}
   #bubble .replay{position:absolute;right:8px;top:8px;width:34px;height:34px;border-radius:50%;
     border:none;background:rgba(255,255,255,.14);color:#fff;font-size:17px;cursor:pointer;}
@@ -77,14 +83,19 @@
   #tapzone{position:absolute;inset:0;z-index:25;cursor:pointer;}
 
   /* ---------- buttons ---------- */
-  .bigbtn{position:absolute;border:none;border-radius:10px;cursor:pointer;
+  .bigbtn{position:absolute;border:none;border-radius:16px;cursor:pointer;
     font-family:inherit;font-weight:700;transition:transform .12s, filter .12s;
     box-shadow:0 4px 14px rgba(0,0,0,.4);}
   .bigbtn:hover{filter:brightness(1.08);transform:translateY(-2px);}
   .bigbtn:active{transform:translateY(1px);}
   .bigbtn:disabled{filter:grayscale(.6) brightness(.75);cursor:default;transform:none;}
-  .primary{right:28px;bottom:28px;background:var(--amber);color:#fff;
-    font-size:28px;padding:18px 44px;z-index:28;}
+  /* primary CTA: bottom-CENTRE (guideline §2). left:0/right:0 + margin auto centres without a
+     transform, so the .bigbtn hover/active translateY still works. min-width meets the 220–260px CTA width. */
+  .primary{left:0;right:0;bottom:28px;margin-inline:auto;width:fit-content;min-width:220px;
+    text-align:center;background:var(--amber);color:#fff;font-size:28px;padding:18px 44px;z-index:28;}
+  /* training screens keep the "Continue" in the lower-right: bottom-centre is occupied by the
+     label-button row (which is itself the screen's real bottom-centre CTA). */
+  #btn-tcontinue{left:auto;right:28px;margin-inline:0;min-width:0;}
   .secondary{left:56px;bottom:52px;background:#C4CCD2;color:#33414D;
     font-size:24px;padding:16px 34px;z-index:28;}
 
@@ -97,25 +108,36 @@
     animation:homeIn .55s ease-out both;}
   @keyframes homeIn{from{opacity:0;transform:translate(-50%,-58%);}
     to{opacity:1;transform:translate(-50%,-50%);}}
-  /* bright cyan glow around the whole logo (not a dark shadow) */
-  .ct-word{position:relative;display:block;line-height:.9;
-    filter:drop-shadow(0 0 8px rgba(103,226,255,.9)) drop-shadow(0 0 20px rgba(45,180,245,.55));}
-  .ct-layer{display:block;font-weight:700;font-size:222px;line-height:.9;white-space:nowrap;
-    margin:0;letter-spacing:-3px;}
-  /* outer navy outline + a small depth shadow (bottom-most layer defines the box) */
-  .ct-outer{color:#174A72;-webkit-text-stroke:5px #174A72;
-    text-shadow:0 5px 0 #175F92,0 9px 12px rgba(3,24,40,.35);}
-  /* pale inner outline drawn over the navy → letters read as illuminated */
-  .ct-inner{color:#E8FBFF;-webkit-text-stroke:2px #E8FBFF;}
-  .ct-inner,.ct-fill,.ct-hi,.ct-anchor{position:absolute;left:0;top:0;right:0;}
-  /* two-tone gradient fills over the strokes: Coin = cyan, Bot = violet */
+  /* home only: desaturate the stall backdrop so the logo & Start pop. */
+  #bgwall.home-bg img.bg{filter:saturate(.6);}
+  /* ===== game logo: CoinBot — bubble letters, two-tone gloss, 3D extrusion, neon glow ===== */
+  .ct-word{position:relative;display:inline-block;line-height:.9;
+    /* controlled two-tone neon glow: cyan (Coin) + purple (Bot) */
+    filter:drop-shadow(0 0 10px rgba(84,220,255,.8)) drop-shadow(0 0 24px rgba(150,120,255,.5));}
+  .ct-layer{display:block;font-family:'Fredoka','Baloo 2','Nunito',system-ui,sans-serif;
+    font-weight:700;font-size:222px;line-height:.9;white-space:nowrap;margin:0;letter-spacing:-4px;}
+  /* overlay layers sit exactly on top of the base extrusion layer */
+  .ct-stroke,.ct-fill,.ct-shine,.ct-anchor{position:absolute;left:0;top:0;right:0;}
+  /* base layer: solid two-tone 3D extrusion (~11px deep) — also defines the box */
+  .ct-ext{position:relative;}
+  .ct-ext .ec{color:#0E3A66;text-shadow:0 1px 0 #0E3A66,0 2px 0 #0E3A66,0 3px 0 #0C3560,
+    0 4px 0 #0C3560,0 5px 0 #0A2E55,0 6px 0 #0A2E55,0 7px 0 #08284A,0 8px 0 #08284A,
+    0 9px 0 #061F3B,0 10px 0 #061F3B,0 11px 0 #05192F,0 14px 16px rgba(2,16,32,.45);}
+  .ct-ext .eb{color:#3A2A80;text-shadow:0 1px 0 #3A2A80,0 2px 0 #3A2A80,0 3px 0 #342676,
+    0 4px 0 #342676,0 5px 0 #2E216B,0 6px 0 #2E216B,0 7px 0 #281C5E,0 8px 0 #281C5E,
+    0 9px 0 #221751,0 10px 0 #221751,0 11px 0 #1C1244,0 14px 16px rgba(10,4,40,.45);}
+  /* thin pale highlight stroke rimming the letters */
+  .ct-stroke{color:transparent;-webkit-text-stroke:6px #EAFBFF;}
+  /* glossy two-tone gradient fills: Coin = cyan→deep blue, Bot = lavender→deep purple */
   .ct-fill{color:transparent;-webkit-text-fill-color:transparent;}
   .fc-coin,.fc-bot{-webkit-background-clip:text;background-clip:text;
     -webkit-text-fill-color:transparent;color:transparent;}
-  .fc-coin{background-image:linear-gradient(180deg,#8EEBFF 0%,#31C8F4 52%,#159CE0 100%);}
-  .fc-bot{background-image:linear-gradient(180deg,#B1A2FF 0%,#7A72F2 52%,#5A54D6 100%);}
-  .ct-hi{background:linear-gradient(180deg,rgba(255,255,255,.8) 0%,rgba(255,255,255,0) 22%);
-    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;}
+  .fc-coin{background-image:linear-gradient(180deg,#B4F3FF 0%,#5AD8F5 30%,#22A6E8 66%,#0E63C4 100%);}
+  .fc-bot{background-image:linear-gradient(180deg,#DCCEFF 0%,#AC8FFF 32%,#7D5AF0 66%,#5A34C8 100%);}
+  /* subtle white shine across the upper part of the letters */
+  .ct-shine{-webkit-text-fill-color:transparent;color:transparent;
+    background:linear-gradient(180deg,rgba(255,255,255,.9) 4%,rgba(255,255,255,.18) 26%,rgba(255,255,255,0) 42%);
+    -webkit-background-clip:text;background-clip:text;}
   .ct-anchor{color:transparent;-webkit-text-fill-color:transparent;} /* invisible; only positions the i light */
   .ct-i{position:relative;} /* dotless ı in every layer → the scanner light IS the tittle */
   .ct-i::after{content:'';position:absolute;left:50%;top:.02em;transform:translateX(-50%);
@@ -125,23 +147,55 @@
     animation:scanPulse 1.9s ease-in-out infinite;}
   @keyframes scanPulse{0%,100%{opacity:.85;transform:translateX(-50%) scale(1);}
     50%{opacity:1;transform:translateX(-50%) scale(1.18);}}
-  /* warm, bright child-friendly tagline pill */
-  .ct-sub{display:inline-block;margin-top:18px;font-family:'Nunito','Fredoka',sans-serif;
-    font-weight:800;font-size:66px;letter-spacing:2px;line-height:1;color:#4A2B00;
-    text-transform:uppercase;background:#FFB92E;border:3px solid #FFE58A;border-radius:999px;
-    padding:12px 48px;box-shadow:0 6px 0 #D78316;}
-  /* Start tab — pinned to the counter, scaled with the scene; custom (no .bigbtn hover-transform) */
-  #homeStart{position:absolute;left:50%;top:72%;transform-origin:center center;
+
+  /* ===== subtitle plaque: SORT SMARTER! — golden capsule + speed-line flanks ===== */
+  .ct-subwrap{display:flex;align-items:center;justify-content:center;gap:20px;margin-top:24px;}
+  .ct-deco{display:flex;flex-direction:column;gap:8px;}
+  .ct-deco.l{align-items:flex-end;} .ct-deco.r{align-items:flex-start;}
+  .ct-deco i{display:block;height:8px;border-radius:999px;}
+  .ct-deco i:nth-child(1){width:30px;background:#35D6EC;box-shadow:0 0 9px rgba(53,214,236,.85);}
+  .ct-deco i:nth-child(2){width:50px;background:#F45AC8;box-shadow:0 0 9px rgba(244,90,200,.85);}
+  .ct-deco i:nth-child(3){width:30px;background:#35D6EC;box-shadow:0 0 9px rgba(53,214,236,.85);}
+  .ct-sub{display:inline-block;font-family:'Fredoka','Nunito',sans-serif;font-weight:700;
+    font-size:60px;letter-spacing:3px;line-height:1;color:#3A1E6E;text-transform:uppercase;
+    padding:14px 52px;border-radius:999px;
+    background:linear-gradient(180deg,#FFE482 0%,#FFC63C 46%,#F79A22 100%);
+    border:4px solid #FFF3CC;
+    box-shadow:0 7px 0 #C9761A,0 12px 22px rgba(150,80,10,.4),0 0 30px rgba(255,190,60,.55),
+      inset 0 2px 3px rgba(255,255,255,.75);}
+
+  /* ===== Start button: golden pill + overlapping play disc, cyan rim & glow ===== */
+  #homeStart{position:absolute;left:50%;top:67%;transform-origin:center center;
     transform:translate(-50%,-50%);z-index:24;cursor:pointer;border:none;
-    font-family:'Fredoka','Nunito',system-ui,sans-serif;font-weight:700;font-size:44px;
-    color:#fff;padding:18px 62px;border-radius:18px;letter-spacing:.5px;
-    background:linear-gradient(180deg,#F6B640 0%,#F0A82E 55%,#D08F1B 100%);
-    box-shadow:0 8px 22px rgba(0,0,0,.4),inset 0 2px 0 rgba(255,255,255,.35);
-    animation:startPulse 1.6s ease-in-out infinite;}
-  #homeStart:hover{filter:brightness(1.06);}
-  #homeStart:active{filter:brightness(.96);}
-  @keyframes startPulse{0%,100%{box-shadow:0 8px 22px rgba(0,0,0,.4),0 0 0 0 rgba(240,168,46,.5),inset 0 2px 0 rgba(255,255,255,.35);}
-    50%{box-shadow:0 8px 22px rgba(0,0,0,.4),0 0 0 14px rgba(240,168,46,0),inset 0 2px 0 rgba(255,255,255,.35);}}
+    display:inline-flex;align-items:center;
+    font-family:'Fredoka','Nunito',system-ui,sans-serif;font-weight:700;font-size:46px;letter-spacing:1px;
+    color:#3A1E6E;padding:16px 50px 16px 96px;border-radius:999px;
+    background:linear-gradient(180deg,#FFE482 0%,#FFC63C 46%,#F79A22 100%);
+    box-shadow:0 8px 0 #C9761A,0 14px 26px rgba(120,60,0,.4),
+      0 0 0 4px rgba(84,220,255,.55),0 0 26px rgba(84,220,255,.5),
+      inset 0 2px 3px rgba(255,255,255,.75);
+    transition:transform .12s, box-shadow .12s, filter .12s;}
+  /* pulsing cyan halo, kept separate from the button's own shadow so states stay intact */
+  #homeStart::after{content:'';position:absolute;inset:0;border-radius:999px;pointer-events:none;
+    box-shadow:0 0 0 0 rgba(84,220,255,.5);animation:startPulse 1.8s ease-in-out infinite;}
+  @keyframes startPulse{0%,100%{box-shadow:0 0 0 0 rgba(84,220,255,.5);}
+    50%{box-shadow:0 0 0 13px rgba(84,220,255,0);}}
+  .hs-play{position:absolute;left:-4px;top:50%;transform:translateY(-50%);
+    width:80px;height:80px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    background:radial-gradient(circle at 38% 32%,#FFF3CC 0%,#FFD34D 42%,#F79A22 100%);
+    box-shadow:0 4px 0 #C9761A,0 0 0 4px rgba(255,243,204,.95),0 6px 14px rgba(120,60,0,.4);}
+  .hs-tri{width:0;height:0;margin-left:7px;
+    border-top:19px solid transparent;border-bottom:19px solid transparent;border-left:30px solid #3A1E6E;
+    filter:drop-shadow(0 1px 0 rgba(255,255,255,.4));}
+  #homeStart:hover{filter:brightness(1.05);transform:translate(-50%,-50%) translateY(-2px);}
+  #homeStart:active{transform:translate(-50%,-50%) translateY(3px);
+    box-shadow:0 3px 0 #C9761A,0 6px 14px rgba(120,60,0,.4),
+      0 0 0 4px rgba(84,220,255,.55),0 0 18px rgba(84,220,255,.45),inset 0 2px 3px rgba(255,255,255,.7);}
+  #homeStart:focus-visible{outline:none;
+    box-shadow:0 8px 0 #C9761A,0 14px 26px rgba(120,60,0,.4),
+      0 0 0 5px #35D6EC,0 0 32px rgba(84,220,255,.75),inset 0 2px 3px rgba(255,255,255,.75);}
+  #homeStart:disabled{cursor:default;filter:grayscale(.5) brightness(.82);}
+  #homeStart:disabled::after{animation:none;box-shadow:none;}
   .label-btn{position:static;background:#fff;color:#2A3742;font-size:26px;padding:16px 30px;
     min-width:170px;display:flex;align-items:center;gap:10px;justify-content:center;}
   .label-btn .ic{font-size:24px;}
@@ -156,15 +210,16 @@
   /* ---------- scanner + cards ---------- */
   #scanArea{position:absolute;left:430px;top:190px;width:400px;height:470px;}
   .brackets{position:absolute;inset:0;pointer-events:none;z-index:3;}
-  .brackets i{position:absolute;width:64px;height:64px;border:5px solid var(--cyan);}
+  .brackets i{position:absolute;width:64px;height:64px;border:7px solid var(--cyan);
+    filter:drop-shadow(0 0 5px var(--cyan)) drop-shadow(0 0 11px var(--cyan));}
   .brackets i:nth-child(1){left:-16px;top:-16px;border-right:none;border-bottom:none;}
   .brackets i:nth-child(2){right:-16px;top:-16px;border-left:none;border-bottom:none;}
   .brackets i:nth-child(3){left:-16px;bottom:-16px;border-right:none;border-top:none;}
   .brackets i:nth-child(4){right:-16px;bottom:-16px;border-left:none;border-top:none;}
-  .card{position:absolute;width:340px;height:410px;left:30px;top:20px;background:#F2F2EE;
+  .card{position:absolute;width:340px;height:410px;left:30px;top:20px;background:#FAF8F3;
     border-radius:8px;box-shadow:0 10px 28px rgba(0,0,0,.5);padding:22px 22px 60px;z-index:2;}
-  .card .ph{width:100%;height:100%;background:#F4F6F7;border-radius:4px;
-    display:flex;align-items:center;justify-content:center;overflow:hidden;}
+  .card .ph{width:100%;height:100%;background:#111;border-radius:4px;
+    display:flex;align-items:center;justify-content:center;overflow:hidden;box-shadow:inset 0 1px 6px rgba(0,0,0,.5);}
   .card img{max-width:82%;max-height:82%;}
   .card.enter{animation:cardIn .45s ease both;}
   @keyframes cardIn{from{transform:translateX(-270px) scale(.8);opacity:.4}
@@ -191,11 +246,11 @@
   .qcard.qstep{animation:qstep .38s ease both;}
   @keyframes qstep{from{transform:translateX(-240px)}to{transform:none}}
   /* conveyor queue: row of upcoming flashcards marching in from the left edge */
-  .qcard{position:absolute;width:230px;height:280px;background:#F2F2EE;
+  .qcard{position:absolute;width:230px;height:280px;background:#FAF8F3;
     border-radius:8px;padding:14px 14px 38px;z-index:1;
     box-shadow:0 8px 20px rgba(0,0,0,.4);}
-  .qcard .ph{width:100%;height:100%;background:#F4F6F7;border-radius:4px;
-    display:flex;align-items:center;justify-content:center;overflow:hidden;}
+  .qcard .ph{width:100%;height:100%;background:#111;border-radius:4px;
+    display:flex;align-items:center;justify-content:center;overflow:hidden;box-shadow:inset 0 1px 6px rgba(0,0,0,.5);}
   .qcard img{max-width:80%;max-height:80%;}
 
   /* verdict frame in tests */
@@ -232,18 +287,18 @@
 
   #trayrow{position:absolute;left:0;bottom:36px;width:100%;display:flex;justify-content:center;
     gap:34px;z-index:9;}
-  .tray{width:190px;height:140px;border-radius:10px 10px 14px 14px;position:relative;
+  .tray{width:240px;height:185px;border-radius:10px 10px 14px 14px;position:relative;
     display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding-bottom:10px;
     background:linear-gradient(180deg,rgba(255,255,255,.16),rgba(0,0,0,.24)),var(--tc,#456);
     box-shadow:inset 0 8px 14px rgba(0,0,0,.35), 0 6px 16px rgba(0,0,0,.45);
     border:3px solid rgba(255,255,255,.25);}
-  .tray .tlabel{font-size:26px;font-weight:700;text-shadow:0 2px 4px rgba(0,0,0,.5);}
+  .tray .tlabel{font-size:32px;font-weight:700;text-shadow:0 2px 4px rgba(0,0,0,.5);}
   .tray .tcount{position:absolute;top:-16px;right:-12px;min-width:38px;height:38px;border-radius:19px;
     background:#fff;color:#22303C;font-weight:700;font-size:21px;display:flex;align-items:center;
     justify-content:center;padding:0 8px;box-shadow:0 3px 8px rgba(0,0,0,.4);}
   .tray .coins{position:absolute;top:12px;left:0;width:100%;display:flex;flex-wrap:wrap;gap:3px;
     justify-content:center;padding:0 10px;}
-  .tray .coins img{width:30px;height:30px;}
+  .tray .coins img{width:38px;height:38px;}
   .tray.unsure{--tc:#7A5A17;border-color:var(--warn);}
   .tray.big{width:300px;height:200px;}
   .tray.big .tlabel{font-size:34px;}
@@ -256,7 +311,7 @@
   .tray.tShow{transform:scale(1.34);transform-origin:center bottom;z-index:20;transition:transform .3s ease;
     box-shadow:0 0 34px 10px rgba(255,214,110,.6),0 10px 26px rgba(0,0,0,.5);}
   .scCoin{position:relative;flex:0 0 auto;width:30px;height:30px;perspective:420px;transition:transform .24s ease;}
-  .scCoin.grow{transform:scale(2.3);z-index:6;}
+  .scCoin.grow{transform:scale(3.2);z-index:6;}
   .scCoin.pulse{cursor:pointer;animation:coinPulse .9s ease-in-out infinite;} /* signals the child to tap */
   @keyframes coinPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.3)}}
   .scFlip{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .55s;}
@@ -299,16 +354,16 @@
   .factimg{font-size:56px;margin-bottom:6px;}
 
   /* ---------- inspection ---------- */
-  #inspect .big{position:absolute;left:50%;top:300px;transform:translate(-50%,-50%);
+  #inspect .big{position:absolute;left:50%;top:345px;transform:translate(-50%,-50%);
     width:330px;height:330px;display:flex;align-items:center;justify-content:center;
     background:radial-gradient(circle at 50% 40%, rgba(255,255,255,.10), rgba(0,0,0,.15));
     border-radius:50%;}
   #inspect .big img{max-width:88%;max-height:88%;filter:drop-shadow(0 10px 24px rgba(0,0,0,.55));}
-  #inspect .navarrow{position:absolute;top:280px;width:74px;height:74px;border-radius:50%;
+  #inspect .navarrow{position:absolute;top:325px;width:74px;height:74px;border-radius:50%;
     border:none;background:rgba(255,255,255,.92);font-size:32px;cursor:pointer;color:#22303C;
     box-shadow:0 4px 14px rgba(0,0,0,.45);z-index:12;}
   #inspect .navarrow:disabled{opacity:.35;cursor:default;}
-  .chips{position:absolute;left:50%;top:500px;transform:translateX(-50%);display:flex;gap:14px;z-index:12;}
+  .chips{position:absolute;left:50%;top:545px;transform:translateX(-50%);display:flex;gap:14px;z-index:12;}
   .chip2{background:#fff;color:#22303C;border-radius:999px;padding:9px 22px;font-size:22px;font-weight:700;
     box-shadow:0 3px 10px rgba(0,0,0,.4);}
   .chip2.value{background:#FFE9B8;border:3px solid var(--amber);font-size:26px;}
@@ -338,16 +393,22 @@
     font-size:21px;border-radius:0 8px 8px 0;margin-bottom:18px;}
 
   /* L1 review: what the robot called "coins" — full-screen grid */
-  #reviewGrid{position:absolute;left:20px;right:20px;top:112px;bottom:372px;z-index:9;
+  #reviewGrid{position:absolute;left:20px;right:20px;top:112px;bottom:520px;z-index:9;
     display:flex;flex-direction:column;gap:12px;justify-content:flex-start;align-items:center;
     overflow:visible;transition:bottom .6s ease;}
   .rvRow{display:flex;gap:12px;justify-content:center;} /* stacked rows: 8 / 7 / 7 */
-  .rItem{width:128px;height:128px;background:#F4F6F7;border-radius:12px;flex:none;
+  .rItem{width:138px;height:138px;background:#F4F6F7;border-radius:14px;flex:none;
     display:flex;align-items:center;justify-content:center;box-shadow:0 6px 16px rgba(0,0,0,.4);}
-  .rItem .face.f img{max-width:78%;max-height:78%;}
+  .rItem .face.f img{max-width:88%;max-height:88%;}
+  /* L1 result: two side columns (coins left / not-coins right) with the robot centred between */
+  .revcol{position:absolute;top:92px;bottom:104px;width:400px;display:flex;flex-direction:column;align-items:center;z-index:9;}
+  .colhead{font-size:30px;font-weight:800;margin-bottom:12px;text-shadow:0 2px 6px rgba(0,0,0,.6);}
+  .colgrid{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;align-content:flex-start;width:100%;}
+  .colempty{font-size:22px;font-weight:700;color:#EAF2F5;opacity:.85;}
   .rItem.badItem{border:6px solid var(--bad);animation:badPulse 1s ease-in-out infinite;}
-  @keyframes badPulse{0%,100%{box-shadow:0 0 0 0 rgba(217,83,79,0);}
-    50%{box-shadow:0 0 30px 8px rgba(217,83,79,.75);}}
+  .rItem.badItem.zoom,.rItem.badItem.flipped{animation:none;} /* pause the pulse while a card is being examined */
+  @keyframes badPulse{0%,100%{transform:scale(1);box-shadow:0 0 8px 2px rgba(217,83,79,.35);}
+    50%{transform:scale(1.08);box-shadow:0 0 32px 11px rgba(217,83,79,.9);}}
 
   .badge{position:absolute;left:50%;top:190px;transform:translateX(-50%);z-index:12;
     animation:badgePop .7s cubic-bezier(.2,1.6,.4,1) both;}
@@ -387,6 +448,8 @@
     display:flex;align-items:center;justify-content:center;}
   .face.b{transform:rotateY(180deg);}
   .face.b img{width:100%;height:100%;object-fit:cover;border-radius:4px;}
+  /* not-coin object back: show the same front image, contained (not cropped) on the same photo well */
+  img.objback{object-fit:contain !important;width:auto !important;height:auto !important;max-width:82% !important;max-height:82% !important;}
   .card{perspective:1000px;cursor:pointer;}
   .card .face.f{display:block;}
   .rItem{perspective:800px;cursor:pointer;}
@@ -399,8 +462,10 @@
   .qfb{font-size:22px;line-height:1.45;color:#3C4A56;background:#EAF2F5;border-radius:8px;padding:12px 18px;}
   #confetti{position:absolute;inset:0;pointer-events:none;z-index:35;}
   /* cutout coins/objects get a soft shadow so light silver coins stay visible on light cards */
-  .card .ph img,.qcard .ph img,.rItem img,#testItem img,#inspect .big img,.bigflip img,.tray .coins img{
+  .rItem img,#testItem img,#inspect .big img,.bigflip img,.tray .coins img{
     filter:drop-shadow(0 2px 3px rgba(0,0,0,.5));}
+  /* coins on the black photo well get a light rim so dark coins stay visible */
+  .card .ph img,.qcard .ph img{filter:drop-shadow(0 0 5px rgba(255,255,255,.55)) drop-shadow(0 2px 4px rgba(0,0,0,.6));}
   /* review polaroid: tap to enlarge, then it flips to the back */
   .rItem{transition:transform .3s;}
   .rItem.zoom{transform:scale(1.85);z-index:30;box-shadow:0 14px 34px rgba(0,0,0,.6);}
@@ -426,8 +491,7 @@
 <header id="topbar">
   <div class="logo">🪙 Coin<span>Bot</span> · <span>Sort Smarter</span></div>
   <div id="phasedots"></div>
-  <button class="tbtn" id="muteBtn" title="Sound on/off">🔊</button>
-  <button class="tbtn" id="restartBtn" title="Restart">↻ Restart</button>
+  <button class="tbtn" id="settingsBtn" title="Menu" aria-label="Open menu">⚙</button>
 </header>
 <div id="stagewrap"><div id="bgwall"></div><div id="stage"></div></div>
 
@@ -457,8 +521,30 @@ function sfx(name){
     const a=sfxCache[name].cloneNode();a.volume=.5;a.play().catch(()=>{});
   }catch(e){}
 }
-$('#muteBtn').onclick=()=>{muted=!muted;$('#muteBtn').textContent=muted?'🔇':'🔊';};
-$('#restartBtn').onclick=()=>{if(confirm('Restart the whole mission?'))location.reload();};
+/* §8: sound + restart live inside one Pause/Settings menu, not loose in the top bar */
+function openSettings(){
+  if($('#settingsOv'))return; // already open
+  sfx('click');
+  stage.insertAdjacentHTML('beforeend',
+    `<div class="overlay fade-in" id="settingsOv">
+       <div class="panel">
+         <h3>Menu</h3>
+         <div class="row">
+           <button class="pbtn gray" id="setSound"></button>
+           <button class="pbtn gray" id="setRestart">↻ Restart mission</button>
+           <button class="pbtn amber" id="setResume">Resume</button>
+         </div>
+       </div>
+     </div>`);
+  const ov=$('#settingsOv'),soundBtn=$('#setSound');
+  const syncSound=()=>{soundBtn.textContent=muted?'🔇 Sound: Off':'🔊 Sound: On';};
+  syncSound();
+  soundBtn.onclick=()=>{muted=!muted;syncSound();if(!muted)sfx('click');};
+  $('#setRestart').onclick=()=>{if(confirm('Restart the whole mission?'))location.reload();};
+  $('#setResume').onclick=()=>{sfx('click');ov.remove();};
+  ov.onclick=e=>{if(e.target===ov)ov.remove();}; // tap the backdrop to close
+}
+$('#settingsBtn').onclick=openSettings;
 
 /* ---------------- placeholder SVG factories ---------------- */
 const DENOM_STYLE={
@@ -467,8 +553,7 @@ const DENOM_STYLE={
   5:{metal:'#D9B65C',edge:'#A8863B',size:.92},
   10:{metal:'#D9B65C',edge:'#A8863B',size:1,bimetal:'#CDD4DB'},
   '25p':{metal:'#C9CFD6',edge:'#9AA3AC',size:.6,label:'25',sub:'PAISE'},
-  '50p':{metal:'#CDD4DB',edge:'#9AA3AC',size:.68,label:'50',sub:'PAISE'},
-  20:{metal:'#D9B65C',edge:'#A8863B',size:1.05,bimetal:'#CDD4DB',sides:12,label:'₹20'}
+  '50p':{metal:'#CDD4DB',edge:'#9AA3AC',size:.68,label:'50',sub:'PAISE'}
 };
 function coinSVG(denom,design,cond){
   const st=DENOM_STYLE[denom],R=95*st.size,C=100;
@@ -598,13 +683,6 @@ for(const d of DENOMS){
       meta:{year:'20XX (sample — replace)',series:DESIGN_LABEL[design]+' (sample — replace)',cond}};
   }
 }
-// ₹20 coins for the Coin / Not Coin category — full range of designs & conditions
-for(const spec of [ ['a','clear'],['b','clear'],['c','clear'],['a','faded'],['b','worn'] ]){
-  const[design,cond]=spec,key=`20-${design}-${cond}`;
-  COIN_DB[key]={key,denom:20,design,cond,
-    file:`coin-20r-${design}-${cond}.png`,ph:coinSVG(20,design,cond),
-    meta:{year:'20XX (sample — replace)',series:DESIGN_LABEL[design]+' (sample — replace)',cond}};
-}
 // real not-coin object photos the user supplied (in Visuals/). ph = category SVG shown only if a file is missing.
 const REAL_OBJS=[
   ['plastic token.png','plastic-token'],['plastic token 2.png','plastic-token'],
@@ -613,7 +691,8 @@ const REAL_OBJS=[
   ['arcade coin.png','arcade-token'],['arcade coin 2.png','arcade-token'],
   ['choclate coin.png','chocolate-coin'],
   ['metal cap coca cola.png','bottle-cap'],['metal cap sprite.png','bottle-cap'],
-  ['metal cap thumsup.png','bottle-cap']
+  ['metal cap thumsup.png','bottle-cap'],
+  ['button.png','button'],['button 2.png','button'],['button 3.png','button']
 ];
 const OBJ_DB={};
 REAL_OBJS.forEach(([file,ph],i)=>{OBJ_DB['obj-'+i]={key:'obj-'+i,type:ph,file,ph:objectSVG(ph)};});
@@ -623,6 +702,11 @@ const imgTag=(item,cls='')=>`<img class="${cls}" src="Visuals/${encodeURI(item.f
 const backTag=item=>item&&item.back
   ?`<img src="Visuals/${encodeURI(item.back)}" data-fb="${CARD_BACK}" alt="">`
   :`<img src="${CARD_BACK}" alt="">`;
+// back face content, framed the SAME as the front (contained, class objback) so both
+// sides show identically: coins flip to their other face, objects repeat the front image.
+const backFace=item=>item&&item.back
+  ?`<img src="Visuals/${encodeURI(item.back)}" data-fb="${CARD_BACK}" class="objback" alt="">`
+  :imgTag(item,'objback');
 /* asset fallback: swap to placeholder when the real file is missing */
 document.addEventListener('error',e=>{
   const t=e.target;
@@ -635,22 +719,33 @@ document.addEventListener('error',e=>{
    b=back (lion side / obverse photo), s=series, y=year. Injected by the manifest
    generator — the array between the RC markers is machine-written. */
 const REAL_COINS=/*RC-START*/[{"k":"r1-0","d":1,"f":"coins/1rs/reverse/X01.png","b":"coins/1rs/obverse/X01.png","s":"Regular Anna Series","y":"1950"},{"k":"r1-1","d":1,"f":"coins/1rs/reverse/X02.png","b":"coins/1rs/obverse/X02.png","s":"Regular","y":"1962"},{"k":"r1-2","d":1,"f":"coins/1rs/reverse/X03.png","b":"coins/1rs/obverse/X03.png","s":"Regular","y":"1970"},{"k":"r1-3","d":1,"f":"coins/1rs/reverse/X04.png","b":"coins/1rs/obverse/X04.png","s":"Regular","y":"1985"},{"k":"r1-4","d":1,"f":"coins/1rs/reverse/X05.png","b":"coins/1rs/obverse/X05.png","s":"Regular","y":"1992"},{"k":"r1-5","d":1,"f":"coins/1rs/reverse/X06.png","b":"coins/1rs/obverse/X06.png","s":"Unity in Diversity Series","y":"2005-06"},{"k":"r1-6","d":1,"f":"coins/1rs/reverse/X07.png","b":"coins/1rs/obverse/X07.png","s":"Nritya Mudra Series","y":"2007-2011"},{"k":"r1-7","d":1,"f":"coins/1rs/reverse/X08.png","b":"coins/1rs/obverse/X08.png","s":"Rupee Symbol Series","y":"2011-2019"},{"k":"r1-8","d":1,"f":"coins/1rs/reverse/X09.png","b":"coins/1rs/obverse/X09.png","s":"Visual Impaired Friendly","y":"2019"},{"k":"r1-9","d":1,"f":"coins/1rs/reverse/X10.png","b":"coins/1rs/obverse/X10.png","s":"Jawaharlal Nehru Commemorative","y":"1964"},{"k":"r1-10","d":1,"f":"coins/1rs/reverse/X11.png","b":"coins/1rs/obverse/X11.png","s":"Mahatma Gandhi","y":"1969"},{"k":"r1-11","d":1,"f":"coins/1rs/reverse/X12.png","b":"coins/1rs/obverse/X12.png","s":"International Youth Year","y":"1985"},{"k":"r1-12","d":1,"f":"coins/1rs/reverse/X13.png","b":"coins/1rs/obverse/X13.png","s":"Small Farmers","y":"1987"},{"k":"r1-13","d":1,"f":"coins/1rs/reverse/X14.png","b":"coins/1rs/obverse/X14.png","s":"FAO Rainfed Farming","y":"1988"},{"k":"r1-14","d":1,"f":"coins/1rs/reverse/X15.png","b":"coins/1rs/obverse/X15.png","s":"Jawaharlal Nehru Centenary","y":"1989"},{"k":"r1-15","d":1,"f":"coins/1rs/reverse/X16.png","b":"coins/1rs/obverse/X16.png","s":"FAO Food and Environment","y":"1989"},{"k":"r1-16","d":1,"f":"coins/1rs/reverse/X17.png","b":"coins/1rs/obverse/X17.png","s":"Dr. Ambedkar","y":"1990"},{"k":"r1-17","d":1,"f":"coins/1rs/reverse/X18.png","b":"coins/1rs/obverse/X18.png","s":"Food For Future","y":"1990"},{"k":"r1-18","d":1,"f":"coins/1rs/reverse/X19.png","b":"coins/1rs/obverse/X19.png","s":"SAARC Care For The Girl Child","y":"1990"},{"k":"r1-19","d":1,"f":"coins/1rs/reverse/X20.png","b":"coins/1rs/obverse/X20.png","s":"Integrated Child Development Services 15th Anniversary","y":"1990"},{"k":"r1-20","d":1,"f":"coins/1rs/reverse/X21.png","b":"coins/1rs/obverse/X21.png","s":"37th Commonwealth Parliamentary Conference","y":"1991"},{"k":"r1-21","d":1,"f":"coins/1rs/reverse/X22.png","b":"coins/1rs/obverse/X22.png","s":"India Tourism Year","y":"1991"},{"k":"r1-22","d":1,"f":"coins/1rs/reverse/X23.png","b":"coins/1rs/obverse/X23.png","s":"Rajiv Gandhi","y":"1992"},{"k":"r1-23","d":1,"f":"coins/1rs/reverse/X24.png","b":"coins/1rs/obverse/X24.png","s":"Food and Nutrition","y":"1992"},{"k":"r1-24","d":1,"f":"coins/1rs/reverse/X25.png","b":"coins/1rs/obverse/X25.png","s":"Quit India Movement Golden Jubilee","y":"1992"},{"k":"r1-25","d":1,"f":"coins/1rs/reverse/X26.png","b":"coins/1rs/obverse/X26.png","s":"89th Inter Parliamentary Union Conference","y":"1993"},{"k":"r1-26","d":1,"f":"coins/1rs/reverse/X27.png","b":"coins/1rs/obverse/X27.png","s":"International Year of the Family","y":"1994"},{"k":"r1-27","d":1,"f":"coins/1rs/reverse/X28.png","b":"coins/1rs/obverse/X28.png","s":"8th World Tamil Conference","y":"1995"},{"k":"r1-28","d":1,"f":"coins/1rs/reverse/X29.png","b":"coins/1rs/obverse/X29.png","s":"Cellular Jail","y":"1997"},{"k":"r1-29","d":1,"f":"coins/1rs/reverse/X30.png","b":"coins/1rs/obverse/X30.png","s":"Saint Dyaneshwar","y":"1999"},{"k":"r1-30","d":1,"f":"coins/1rs/reverse/X31.png","b":"coins/1rs/obverse/X31.png","s":"Jay Prakash Narayan","y":"2002"},{"k":"r1-31","d":1,"f":"coins/1rs/reverse/X32.png","b":"coins/1rs/obverse/X32.png","s":"Maharana Pratap","y":"2003"},{"k":"r1-32","d":1,"f":"coins/1rs/reverse/X33.png","b":"coins/1rs/obverse/X33.png","s":"Veer Durgadas","y":"2003"},{"k":"r1-33","d":1,"f":"coins/1rs/reverse/X34.png","b":"coins/1rs/obverse/X34.png","s":"150 Years of India Post","y":"2004"},{"k":"r1-34","d":1,"f":"coins/1rs/reverse/X35.png","b":"coins/1rs/obverse/X35.png","s":"Platinum Jubilee of Reserve Bank of India","y":"2010"},{"k":"r2-0","d":2,"f":"coins/2rs/reverse/NATIONAL INTEGRATION 1982-1992.png","b":"coins/2rs/obverse/NATIONAL INTEGRATION 1982-1992.png","s":"NATIONAL INTEGRATION 1982-1992","y":""},{"k":"r2-1","d":2,"f":"coins/2rs/reverse/Regular 1984.png","b":"coins/2rs/obverse/Regular 1984.png","s":"Regular 1984","y":""},{"k":"r2-2","d":2,"f":"coins/2rs/reverse/NATIONAL INTEGRATION 1992-2004.png","b":"coins/2rs/obverse/NATIONAL INTEGRATION 1992-2004.png","s":"NATIONAL INTEGRATION 1992-2004","y":""},{"k":"r2-3","d":2,"f":"coins/2rs/reverse/UNITY IN DIVERSITY 2005-2007.png","b":"coins/2rs/obverse/UNITY IN DIVERSITY 2005-2007.png","s":"UNITY IN DIVERSITY 2005-2007","y":""},{"k":"r2-4","d":2,"f":"coins/2rs/reverse/NITYA MUDRA 2007-2011.png","b":"coins/2rs/obverse/NITYA MUDRA 2007-2011.png","s":"NITYA MUDRA 2007-2011","y":""},{"k":"r2-5","d":2,"f":"coins/2rs/reverse/Rupee Symbol Series 2011-2019.png","b":"coins/2rs/obverse/Rupee Symbol Series 2011-2019.png","s":"Rupee Symbol Series 2011-2019","y":""},{"k":"r2-6","d":2,"f":"coins/2rs/reverse/Visual Impaired Friendly 2019-2022.png","b":"coins/2rs/obverse/Visual Impaired Friendly 2019-2022.png","s":"Visual Impaired Friendly 2019-2022","y":""},{"k":"r2-7","d":2,"f":"coins/2rs/reverse/Azadi Ka Amrit Mahotsav - AKAM Series 2022.png","b":"coins/2rs/obverse/Azadi Ka Amrit Mahotsav - AKAM Series 2022.png","s":"Azadi Ka Amrit Mahotsav - AKAM Series 2022","y":""},{"k":"r2-8","d":2,"f":"coins/2rs/reverse/IX Asian Games Delhi 1982.png","b":"coins/2rs/obverse/IX Asian Games Delhi 1982.png","s":"IX Asian Games Delhi 1982","y":""},{"k":"r2-9","d":2,"f":"coins/2rs/reverse/RBI Golden Jubilee 1985.png","b":"coins/2rs/obverse/RBI Golden Jubilee 1985.png","s":"RBI Golden Jubilee 1985","y":""},{"k":"r2-10","d":2,"f":"coins/2rs/reverse/India Tourism Year 1991.png","b":"coins/2rs/obverse/India Tourism Year 1991.png","s":"India Tourism Year 1991","y":""},{"k":"r2-11","d":2,"f":"coins/2rs/reverse/LAND VITAL RESOURCES 1992.png","b":"coins/2rs/obverse/LAND VITAL RESOURCES 1992.png","s":"LAND VITAL RESOURCES 1992","y":""},{"k":"r2-12","d":2,"f":"coins/2rs/reverse/Small Family Happy Family 1993.png","b":"coins/2rs/obverse/Small Family Happy Family 1993.png","s":"Small Family Happy Family 1993","y":""},{"k":"r2-13","d":2,"f":"coins/2rs/reverse/Bio Diversity-World Food Day 1993.png","b":"coins/2rs/obverse/Bio Diversity-World Food Day 1993.png","s":"Bio Diversity-World Food Day 1993","y":""},{"k":"r2-14","d":2,"f":"coins/2rs/reverse/WATER FOR LIFE 1994.png","b":"coins/2rs/obverse/WATER FOR LIFE 1994.png","s":"WATER FOR LIFE 1994","y":""},{"k":"r2-15","d":2,"f":"coins/2rs/reverse/AGRI EXPO 1995.png","b":"coins/2rs/obverse/AGRI EXPO 1995.png","s":"AGRI EXPO 1995","y":""},{"k":"r2-16","d":2,"f":"coins/2rs/reverse/8th World Tamil Conference 1995.png","b":"coins/2rs/obverse/8th World Tamil Conference 1995.png","s":"8th World Tamil Conference 1995","y":""},{"k":"r2-17","d":2,"f":"coins/2rs/reverse/Sardar Vallabhbhai Patel 1996.png","b":"coins/2rs/obverse/Sardar Vallabhbhai Patel 1996.png","s":"Sardar Vallabhbhai Patel 1996","y":""},{"k":"r2-18","d":2,"f":"coins/2rs/reverse/NETAJI SUBHAS CH. BOSE CENTENARY 1997.png","b":"coins/2rs/obverse/NETAJI SUBHAS CH. BOSE CENTENARY 1997.png","s":"NETAJI SUBHAS CH. BOSE CENTENARY 1997","y":""},{"k":"r2-19","d":2,"f":"coins/2rs/reverse/DESHBANDHU CHITTARANJAN DAS 1998.png","b":"coins/2rs/obverse/DESHBANDHU CHITTARANJAN DAS 1998.png","s":"DESHBANDHU CHITTARANJAN DAS 1998","y":""},{"k":"r2-20","d":2,"f":"coins/2rs/reverse/CHHATRAPATI SHIVAJI MAHARAJ 1999.png","b":"coins/2rs/obverse/CHHATRAPATI SHIVAJI MAHARAJ 1999.png","s":"CHHATRAPATI SHIVAJI MAHARAJ 1999","y":""},{"k":"r2-21","d":2,"f":"coins/2rs/reverse/SHRI AUROBINDO GHOSH 1998.png","b":"coins/2rs/obverse/SHRI AUROBINDO GHOSH 1998.png","s":"SHRI AUROBINDO GHOSH 1998","y":""},{"k":"r2-22","d":2,"f":"coins/2rs/reverse/SUPREME COURT OF INDIA 2000.png","b":"coins/2rs/obverse/SUPREME COURT OF INDIA 2000.png","s":"SUPREME COURT OF INDIA 2000","y":""},{"k":"r2-23","d":2,"f":"coins/2rs/reverse/SHYAMA PRASAD MOOKERJEE 2001.png","b":"coins/2rs/obverse/SHYAMA PRASAD MOOKERJEE 2001.png","s":"SHYAMA PRASAD MOOKERJEE 2001","y":""},{"k":"r2-24","d":2,"f":"coins/2rs/reverse/SANT TUKARAM 2002.png","b":"coins/2rs/obverse/SANT TUKARAM 2002.png","s":"SANT TUKARAM 2002","y":""},{"k":"r2-25","d":2,"f":"coins/2rs/reverse/Indian Railways 2003.png","b":"coins/2rs/obverse/Indian Railways 2003.png","s":"Indian Railways 2003","y":""},{"k":"r2-26","d":2,"f":"coins/2rs/reverse/150 Years of Telecom 2004.png","b":"coins/2rs/obverse/150 Years of Telecom 2004.png","s":"150 Years of Telecom 2004","y":""},{"k":"r2-27","d":2,"f":"coins/2rs/reverse/Indian Air Force Platinum Jubilee 2007.png","b":"coins/2rs/obverse/Indian Air Force Platinum Jubilee 2007.png","s":"Indian Air Force Platinum Jubilee 2007","y":""},{"k":"r2-28","d":2,"f":"coins/2rs/reverse/Louis Braille 2009.png","b":"coins/2rs/obverse/Louis Braille 2009.png","s":"Louis Braille 2009","y":""},{"k":"r2-29","d":2,"f":"coins/2rs/reverse/XIX Commonwealth Games Delhi 2010.png","b":"coins/2rs/obverse/XIX Commonwealth Games Delhi 2010.png","s":"XIX Commonwealth Games Delhi 2010","y":""},{"k":"r2-30","d":2,"f":"coins/2rs/reverse/Reserve Bank of India - Platinum Jubilee 2011.png","b":"coins/2rs/obverse/Reserve Bank of India - Platinum Jubilee 2011.png","s":"Reserve Bank of India - Platinum Jubilee 2011","y":""},{"k":"r5-0","d":5,"f":"coins/5rs/reverse/Circulation Coin 1992-2007.png","b":"coins/5rs/obverse/Circulation Coin 1992-2007.png","s":"Circulation Coin","y":"1992-2007"},{"k":"r5-1","d":5,"f":"coins/5rs/reverse/Unity in Diversity 2005-07.png","b":"coins/5rs/obverse/Unity in Diversity 2005-07.png","s":"Unity in Diversity","y":"2005-07"},{"k":"r5-2","d":5,"f":"coins/5rs/reverse/Connectivity and Information Technology 2007-09.png","b":"coins/5rs/obverse/Connectivity and Information Technology 2007-09.png","s":"Connectivity and Information Technology","y":"2007-09"},{"k":"r5-3","d":5,"f":"coins/5rs/reverse/Circulation Coin 2009-11.png","b":"coins/5rs/obverse/Circulation Coin 2009-11.png","s":"Circulation Coin","y":"2009-11"},{"k":"r5-4","d":5,"f":"coins/5rs/reverse/Circulation Coin 2011-19.png","b":"coins/5rs/obverse/Circulation Coin 2011-19.png","s":"Circulation Coin","y":"2011-19"},{"k":"r5-5","d":5,"f":"coins/5rs/reverse/Circulation Coin 2019.png","b":"coins/5rs/obverse/Circulation Coin 2019.png","s":"Circulation Coin","y":"2019"},{"k":"r5-6","d":5,"f":"coins/5rs/reverse/Indira Gandhi 1985.png","b":"coins/5rs/obverse/Indira Gandhi 1985.png","s":"Indira Gandhi","y":"1985"},{"k":"r5-7","d":5,"f":"coins/5rs/reverse/Centenary of Jawaharlal Nehru 1989.png","b":"coins/5rs/obverse/Centenary of Jawaharlal Nehru 1989.png","s":"Centenary of Jawaharlal Nehru","y":"1989"},{"k":"r5-8","d":5,"f":"coins/5rs/reverse/37th Commonwealth Parliamentary Conference 1991.png","b":"coins/5rs/obverse/37th Commonwealth Parliamentary Conference 1991.png","s":"37th Commonwealth Parliamentary Conference","y":"1991"},{"k":"r5-9","d":5,"f":"coins/5rs/reverse/India Tourism Year 1991.png","b":"coins/5rs/obverse/India Tourism Year 1991.png","s":"India Tourism Year","y":"1991"},{"k":"r5-10","d":5,"f":"coins/5rs/reverse/75th Anniversary of ILO (International Labor Organization) 1994.png","b":"coins/5rs/obverse/75th Anniversary of ILO (International Labor Organization) 1994.png","s":"75th Anniversary of ILO (International Labor Organization)","y":"1994"},{"k":"r5-11","d":5,"f":"coins/5rs/reverse/8th World Tamil Conference - Saint Thiruvalluvar 1995.png","b":"coins/5rs/obverse/8th World Tamil Conference - Saint Thiruvalluvar 1995.png","s":"8th World Tamil Conference - Saint Thiruvalluvar","y":"1995"},{"k":"r5-12","d":5,"f":"coins/5rs/reverse/50th Anniversary of the UN 1995.png","b":"coins/5rs/obverse/50th Anniversary of the UN 1995.png","s":"50th Anniversary of the UN","y":"1995"},{"k":"r5-13","d":5,"f":"coins/5rs/reverse/50th Anniversary of FAO 1995.png","b":"coins/5rs/obverse/50th Anniversary of FAO 1995.png","s":"50th Anniversary of FAO","y":"1995"},{"k":"r5-14","d":5,"f":"coins/5rs/reverse/Mother's Health is Child's Health 1996.png","b":"coins/5rs/obverse/Mother's Health is Child's Health 1996.png","s":"Mother's Health is Child's Health","y":"1996"},{"k":"r5-15","d":5,"f":"coins/5rs/reverse/2600th Anniversary of Bhagwan Mahavir 2001.png","b":"coins/5rs/obverse/2600th Anniversary of Bhagwan Mahavir 2001.png","s":"2600th Anniversary of Bhagwan Mahavir","y":"2001"},{"k":"r5-16","d":5,"f":"coins/5rs/reverse/Dadabhai Naoroji 2003.png","b":"coins/5rs/obverse/Dadabhai Naoroji 2003.png","s":"Dadabhai Naoroji","y":"2003"},{"k":"r5-17","d":5,"f":"coins/5rs/reverse/K.Kamaraj 2003.png","b":"coins/5rs/obverse/K.Kamaraj 2003.png","s":"K.Kamaraj","y":"2003"},{"k":"r5-18","d":5,"f":"coins/5rs/reverse/Lal Bhadur Shastri 2004 - Copper-Nickel.png","b":"coins/5rs/obverse/Lal Bhadur Shastri 2004 - Copper-Nickel.png","s":"Lal Bhadur Shastri","y":"2004"},{"k":"r5-19","d":5,"f":"coins/5rs/reverse/Lal Bhadur Shastri 2004 - Stainless Steel.png","b":"coins/5rs/obverse/Lal Bhadur Shastri 2004 - Stainless Steel.png","s":"Lal Bhadur Shastri","y":"2004"},{"k":"r5-20","d":5,"f":"coins/5rs/reverse/75 years since the birth of Dandhi March 2005 - Copper-Nickel.png","b":"coins/5rs/obverse/75 years since the birth of Dandhi March 2005 - Copper-Nickel.png","s":"75 years since the birth of Dandhi March","y":"2005"},{"k":"r5-21","d":5,"f":"coins/5rs/reverse/75 years since the birth of Dandhi March 2005 - Stainless Steel.png","b":"coins/5rs/obverse/75 years since the birth of Dandhi March 2005 - Stainless Steel.png","s":"75 years since the birth of Dandhi March","y":"2005"},{"k":"r5-22","d":5,"f":"coins/5rs/reverse/Jagadh Guru Sree Narayana Gurudev 2006 - Copper-Nickel.png","b":"coins/5rs/obverse/Jagadh Guru Sree Narayana Gurudev 2006 - Copper-Nickel.png","s":"Jagadh Guru Sree Narayana Gurudev","y":"2006"},{"k":"r5-23","d":5,"f":"coins/5rs/reverse/Jagadh Guru Sree Narayana Gurudev 2006 - Stainless Steel.png","b":"coins/5rs/obverse/Jagadh Guru Sree Narayana Gurudev 2006 - Stainless Steel.png","s":"Jagadh Guru Sree Narayana Gurudev","y":"2006"},{"k":"r5-24","d":5,"f":"coins/5rs/reverse/Mahatma Basaveshwara 2006 - Copper-Nickel.png","b":"coins/5rs/obverse/Mahatma Basaveshwara 2006 - Copper-Nickel.png","s":"Mahatma Basaveshwara","y":"2006"},{"k":"r5-25","d":5,"f":"coins/5rs/reverse/Mahatma Basaveshwara 2006 - Stainless Steel.png","b":"coins/5rs/obverse/Mahatma Basaveshwara 2006 - Stainless Steel.png","s":"Mahatma Basaveshwara","y":"2006"},{"k":"r5-26","d":5,"f":"coins/5rs/reverse/State Bank of India Bi-Centennial Year 2006 - Copper-Nickel.png","b":"coins/5rs/obverse/State Bank of India Bi-Centennial Year 2006 - Copper-Nickel.png","s":"State Bank of India Bi-Centennial Year","y":"2006"},{"k":"r5-27","d":5,"f":"coins/5rs/reverse/State Bank of India Bi-Centennial Year 2006 - Stainless Steel.png","b":"coins/5rs/obverse/State Bank of India Bi-Centennial Year 2006 - Stainless Steel.png","s":"State Bank of India Bi-Centennial Year","y":"2006"},{"k":"r5-28","d":5,"f":"coins/5rs/reverse/50 years of ONGC 2006 - Copper-Nickel.png","b":"coins/5rs/obverse/50 years of ONGC 2006 - Copper-Nickel.png","s":"50 years of ONGC","y":"2006"},{"k":"r5-29","d":5,"f":"coins/5rs/reverse/50 years of ONGC 2006 - Stainless Steel.png","b":"coins/5rs/obverse/50 years of ONGC 2006 - Stainless Steel.png","s":"50 years of ONGC","y":"2006"},{"k":"r5-30","d":5,"f":"coins/5rs/reverse/150th Birth Anniversary of Lokmanya Bal Gangadhar Tilak 2007 - Copper-Nickel.png","b":"coins/5rs/obverse/150th Birth Anniversary of Lokmanya Bal Gangadhar Tilak 2007 - Copper-Nickel.png","s":"150th Birth Anniversary of Lokmanya Bal Gangadhar Tilak","y":"2007"},{"k":"r5-31","d":5,"f":"coins/5rs/reverse/150th Birth Anniversary of Lokmanya Bal Gangadhar Tilak 2007 - Stainless Steel.png","b":"coins/5rs/obverse/150th Birth Anniversary of Lokmanya Bal Gangadhar Tilak 2007 - Stainless Steel.png","s":"150th Birth Anniversary of Lokmanya Bal Gangadhar Tilak","y":"2007"},{"k":"r5-32","d":5,"f":"coins/5rs/reverse/50th Anniversary of Khadi and Village Industries Commission 2007 - Copper-Nickel.png","b":"coins/5rs/obverse/50th Anniversary of Khadi and Village Industries Commission 2007 - Copper-Nickel.png","s":"50th Anniversary of Khadi and Village Industries Commission","y":"2007"},{"k":"r5-33","d":5,"f":"coins/5rs/reverse/50th Anniversary of Khadi and Village Industries Commission 2007 - Stainless Steel.png","b":"coins/5rs/obverse/50th Anniversary of Khadi and Village Industries Commission 2007 - Stainless Steel.png","s":"50th Anniversary of Khadi and Village Industries Commission","y":"2007"},{"k":"r5-34","d":5,"f":"coins/5rs/reverse/150 Years - First War for Independence 2007 - Copper-Nickel.png","b":"coins/5rs/obverse/150 Years - First War for Independence 2007 - Copper-Nickel.png","s":"150 Years - First War for Independence","y":"2007"},{"k":"r5-35","d":5,"f":"coins/5rs/reverse/150 Years - First War for Independence 2007 - Stainless Steel.png","b":"coins/5rs/obverse/150 Years - First War for Independence 2007 - Stainless Steel.png","s":"150 Years - First War for Independence","y":"2007"},{"k":"r5-36","d":5,"f":"coins/5rs/reverse/Shaheed Bhagat Singh Centenary 2007.png","b":"coins/5rs/obverse/Shaheed Bhagat Singh Centenary 2007.png","s":"Shaheed Bhagat Singh Centenary","y":"2007"},{"k":"r5-37","d":5,"f":"coins/5rs/reverse/Perarignar Anna Centenary 2009.png","b":"coins/5rs/obverse/Perarignar Anna Centenary 2009.png","s":"Perarignar Anna Centenary","y":"2009"},{"k":"r5-38","d":5,"f":"coins/5rs/reverse/125th Birth Anniversary of Dr. Rajendra Prasad 2009.png","b":"coins/5rs/obverse/125th Birth Anniversary of Dr. Rajendra Prasad 2009.png","s":"125th Birth Anniversary of Dr. Rajendra Prasad","y":"2009"},{"k":"r5-39","d":5,"f":"coins/5rs/reverse/St. Alponsa Birth Centenary 2009.png","b":"coins/5rs/obverse/St. Alponsa Birth Centenary 2009.png","s":"St. Alponsa Birth Centenary","y":"2009"},{"k":"r5-40","d":5,"f":"coins/5rs/reverse/60 Years of The Common Wealth 2009.png","b":"coins/5rs/obverse/60 Years of The Common Wealth 2009.png","s":"60 Years of The Common Wealth","y":"2009"},{"k":"r5-41","d":5,"f":"coins/5rs/reverse/75th Anniversary of Reserve Bank of India 2010.png","b":"coins/5rs/obverse/75th Anniversary of Reserve Bank of India 2010.png","s":"75th Anniversary of Reserve Bank of India","y":"2010"},{"k":"r5-42","d":5,"f":"coins/5rs/reverse/XIX Commonwealth Games 2010, Delhi 2010.png","b":"coins/5rs/obverse/XIX Commonwealth Games 2010, Delhi 2010.png","s":"XIX Commonwealth Games 2010, Delhi","y":"2010"},{"k":"r5-43","d":5,"f":"coins/5rs/reverse/Birth Centenary of C.Subramaniam 2010.png","b":"coins/5rs/obverse/Birth Centenary of C.Subramaniam 2010.png","s":"Birth Centenary of C.Subramaniam","y":"2010"},{"k":"r5-44","d":5,"f":"coins/5rs/reverse/1000 years of Brihadeeswarar Temple 2010.png","b":"coins/5rs/obverse/1000 years of Brihadeeswarar Temple 2010.png","s":"1000 years of Brihadeeswarar Temple","y":"2010"},{"k":"r5-45","d":5,"f":"coins/5rs/reverse/Birth Centenary of Mother Teresa 2010.png","b":"coins/5rs/obverse/Birth Centenary of Mother Teresa 2010.png","s":"Birth Centenary of Mother Teresa","y":"2010"},{"k":"r5-46","d":5,"f":"coins/5rs/reverse/150th Birth Anniversary of Shri Rabindranath Tagore 2011.png","b":"coins/5rs/obverse/150th Birth Anniversary of Shri Rabindranath Tagore 2011.png","s":"150th Birth Anniversary of Shri Rabindranath Tagore","y":"2011"},{"k":"r5-47","d":5,"f":"coins/5rs/reverse/100 Years of Civil Aviation 2011.png","b":"coins/5rs/obverse/100 Years of Civil Aviation 2011.png","s":"100 Years of Civil Aviation","y":"2011"},{"k":"r5-48","d":5,"f":"coins/5rs/reverse/150 Years of Kuka Movement 2011.png","b":"coins/5rs/obverse/150 Years of Kuka Movement 2011.png","s":"150 Years of Kuka Movement","y":"2011"},{"k":"r5-49","d":5,"f":"coins/5rs/reverse/100 years of Indian council of Medical Research 2011.png","b":"coins/5rs/obverse/100 years of Indian council of Medical Research 2011.png","s":"100 years of Indian council of Medical Research","y":"2011"},{"k":"r5-50","d":5,"f":"coins/5rs/reverse/Income Tax-150 Years of Building India 2011.png","b":"coins/5rs/obverse/Income Tax-150 Years of Building India 2011.png","s":"Income Tax-150 Years of Building India","y":"2011"},{"k":"r5-51","d":5,"f":"coins/5rs/reverse/150 Years of Comptroller and Auditor General of India 2011.png","b":"coins/5rs/obverse/150 Years of Comptroller and Auditor General of India 2011.png","s":"150 Years of Comptroller and Auditor General of India","y":"2011"},{"k":"r5-52","d":5,"f":"coins/5rs/reverse/150 Years of Madan Mohan Malaviya 2011.png","b":"coins/5rs/obverse/150 Years of Madan Mohan Malaviya 2011.png","s":"150 Years of Madan Mohan Malaviya","y":"2011"},{"k":"r5-53","d":5,"f":"coins/5rs/reverse/60 years of the Parliament of India 2012.png","b":"coins/5rs/obverse/60 years of the Parliament of India 2012.png","s":"60 years of the Parliament of India","y":"2012"},{"k":"r5-54","d":5,"f":"coins/5rs/reverse/60 Years of India Government Mint, Kolkata 2012.png","b":"coins/5rs/obverse/60 Years of India Government Mint, Kolkata 2012.png","s":"60 Years of India Government Mint, Kolkata","y":"2012"},{"k":"r5-55","d":5,"f":"coins/5rs/reverse/150th Birth Anniversary of Motilal Nehru 2012.png","b":"coins/5rs/obverse/150th Birth Anniversary of Motilal Nehru 2012.png","s":"150th Birth Anniversary of Motilal Nehru","y":"2012"},{"k":"r5-56","d":5,"f":"coins/5rs/reverse/Mata Vaishno Devi Shrine Board 2012.png","b":"coins/5rs/obverse/Mata Vaishno Devi Shrine Board 2012.png","s":"Mata Vaishno Devi Shrine Board","y":"2012"},{"k":"r5-57","d":5,"f":"coins/5rs/reverse/150 Birth Anniversary of Vivekananda 2013.png","b":"coins/5rs/obverse/150 Birth Anniversary of Vivekananda 2013.png","s":"150 Birth Anniversary of Vivekananda","y":"2013"},{"k":"r5-58","d":5,"f":"coins/5rs/reverse/Acharya Tulsi Birth Centenary 2013.png","b":"coins/5rs/obverse/Acharya Tulsi Birth Centenary 2013.png","s":"Acharya Tulsi Birth Centenary","y":"2013"},{"k":"r5-59","d":5,"f":"coins/5rs/reverse/Moulana Abul Kalam Azad 125th Birth Anniversary 2014.png","b":"coins/5rs/obverse/Moulana Abul Kalam Azad 125th Birth Anniversary 2014.png","s":"Moulana Abul Kalam Azad 125th Birth Anniversary","y":"2014"},{"k":"r5-60","d":5,"f":"coins/5rs/reverse/Birth Centenary of Begum Akhtar 2014.png","b":"coins/5rs/obverse/Birth Centenary of Begum Akhtar 2014.png","s":"Birth Centenary of Begum Akhtar","y":"2014"},{"k":"r5-61","d":5,"f":"coins/5rs/reverse/125th Birth Anniversary of Jawaharlal Nehru 2014.png","b":"coins/5rs/obverse/125th Birth Anniversary of Jawaharlal Nehru 2014.png","s":"125th Birth Anniversary of Jawaharlal Nehru","y":"2014"},{"k":"r5-62","d":5,"f":"coins/5rs/reverse/BHEL-50 Years of Engineering Excellence 2014.png","b":"coins/5rs/obverse/BHEL-50 Years of Engineering Excellence 2014.png","s":"BHEL-50 Years of Engineering Excellence","y":"2014"},{"k":"r5-63","d":5,"f":"coins/5rs/reverse/Centenary Commemoration of Komagata Maru Incident 2014.png","b":"coins/5rs/obverse/Centenary Commemoration of Komagata Maru Incident 2014.png","s":"Centenary Commemoration of Komagata Maru Incident","y":"2014"},{"k":"r5-64","d":5,"f":"coins/5rs/reverse/Jamestji Nusserwanji Tata 175th Birth Anniversary 2015.png","b":"coins/5rs/obverse/Jamestji Nusserwanji Tata 175th Birth Anniversary 2015.png","s":"Jamestji Nusserwanji Tata 175th Birth Anniversary","y":"2015"},{"k":"r5-65","d":5,"f":"coins/5rs/reverse/Birth Centenary of Rani Gaidinliu 2016.png","b":"coins/5rs/obverse/Birth Centenary of Rani Gaidinliu 2016.png","s":"Birth Centenary of Rani Gaidinliu","y":"2016"},{"k":"r5-66","d":5,"f":"coins/5rs/reverse/Birth Centenary of Biju Patnaik 2016.png","b":"coins/5rs/obverse/Birth Centenary of Biju Patnaik 2016.png","s":"Birth Centenary of Biju Patnaik","y":"2016"},{"k":"r5-67","d":5,"f":"coins/5rs/reverse/150th Anniversary of High Court of Allahabad 2016.png","b":"coins/5rs/obverse/150th Anniversary of High Court of Allahabad 2016.png","s":"150th Anniversary of High Court of Allahabad","y":"2016"},{"k":"r5-68","d":5,"f":"coins/5rs/reverse/125th Anniversary of Prasanta Chandra Mahalanobis 2018.png","b":"coins/5rs/obverse/125th Anniversary of Prasanta Chandra Mahalanobis 2018.png","s":"125th Anniversary of Prasanta Chandra Mahalanobis","y":"2018"},{"k":"r5-69","d":5,"f":"coins/5rs/reverse/Golden Jubilee 1965 Operations Valour and Sacrifice 2015.png","b":"coins/5rs/obverse/Golden Jubilee 1965 Operations Valour and Sacrifice 2015.png","s":"Golden Jubilee 1965 Operations Valour & Sacrifice","y":"2015"},{"k":"r5-70","d":5,"f":"coins/5rs/reverse/Biju Patnaik Birth Centenary 2016.png","b":"coins/5rs/obverse/Biju Patnaik Birth Centenary 2016.png","s":"Biju Patnaik Birth Centenary","y":"2016"},{"k":"r5-71","d":5,"f":"coins/5rs/reverse/University of Mysore Centenary 2016.png","b":"coins/5rs/obverse/University of Mysore Centenary 2016.png","s":"University of Mysore Centenary","y":"2016"},{"k":"r5-72","d":5,"f":"coins/5rs/reverse/Birth Centenary of Dr. M.G. Ramachandran 2017.png","b":"coins/5rs/obverse/Birth Centenary of Dr. M.G. Ramachandran 2017.png","s":"Birth Centenary of Dr. M.G. Ramachandran","y":"2017"},{"k":"r5-73","d":5,"f":"coins/5rs/reverse/Birth Centenary of Deendayal Upadhyaya 2018.png","b":"coins/5rs/obverse/Birth Centenary of Deendayal Upadhyaya 2018.png","s":"Birth Centenary of Deendayal Upadhyaya","y":"2018"},{"k":"r10-0","d":10,"f":"coins/10rs/reverse/Unity in diversity Series.png","b":"coins/10rs/obverse/Unity in diversity Series.png","s":"Unity in diversity Series","y":""},{"k":"r10-1","d":10,"f":"coins/10rs/reverse/Information and Technology.png","b":"coins/10rs/obverse/Information and Technology.png","s":"Information and Technology","y":""},{"k":"r10-2","d":10,"f":"coins/10rs/reverse/Rupee Symbol Series.png","b":"coins/10rs/obverse/Rupee Symbol Series.png","s":"Rupee Symbol Series","y":""},{"k":"r10-3","d":10,"f":"coins/10rs/reverse/Visually Impaired Friendly Series.png","b":"coins/10rs/obverse/Visually Impaired Friendly Series.png","s":"Visually Impaired Friendly Series","y":""},{"k":"r10-4","d":10,"f":"coins/10rs/reverse/Ter Centenary of Gur-Ta-Gaddi.png","b":"coins/10rs/obverse/Ter Centenary of Gur-Ta-Gaddi.png","s":"Ter Centenary of Gur-Ta-Gaddi","y":""},{"k":"r10-5","d":10,"f":"coins/10rs/reverse/Birth Centenary of Homi Bhabha.png","b":"coins/10rs/obverse/Birth Centenary of Homi Bhabha.png","s":"Birth Centenary of Homi Bhabha","y":""},{"k":"r10-6","d":10,"f":"coins/10rs/reverse/75 Years of Reserve Bank of India.png","b":"coins/10rs/obverse/75 Years of Reserve Bank of India.png","s":"75 Years of Reserve Bank of India","y":""},{"k":"r10-7","d":10,"f":"coins/10rs/reverse/Srimad Ramchandra 150th Birth Anniversary.png","b":"coins/10rs/obverse/Srimad Ramchandra 150th Birth Anniversary.png","s":"Srimad Ramchandra 150th Birth Anniversary","y":""},{"k":"r10-8","d":10,"f":"coins/10rs/reverse/Shri Mata Vaishno Devi Shrine Board.png","b":"coins/10rs/obverse/Shri Mata Vaishno Devi Shrine Board.png","s":"Shri Mata Vaishno Devi Shrine Board","y":""},{"k":"r10-9","d":10,"f":"coins/10rs/reverse/International Day Of Yoga.png","b":"coins/10rs/obverse/International Day Of Yoga.png","s":"International Day Of Yoga","y":""},{"k":"r10-10","d":10,"f":"coins/10rs/reverse/Return Of Mahatma Gandhi From South Africa.png","b":"coins/10rs/obverse/Return Of Mahatma Gandhi From South Africa.png","s":"Return Of Mahatma Gandhi From South Africa","y":""},{"k":"r10-11","d":10,"f":"coins/10rs/reverse/60 Years of Coir Board.png","b":"coins/10rs/obverse/60 Years of Coir Board.png","s":"60 Years of Coir Board","y":""},{"k":"r10-12","d":10,"f":"coins/10rs/reverse/Banaras Hindu University Centenary.png","b":"coins/10rs/obverse/Banaras Hindu University Centenary.png","s":"Banaras Hindu University Centenary","y":""},{"k":"r10-13","d":10,"f":"coins/10rs/reverse/Birth Centenary of Swami Chinmayananda.png","b":"coins/10rs/obverse/Birth Centenary of Swami Chinmayananda.png","s":"Birth Centenary of Swami Chinmayananda","y":""},{"k":"r10-14","d":10,"f":"coins/10rs/reverse/475th birth Anniversary of Maharana Pratap.png","b":"coins/10rs/obverse/475th birth Anniversary of Maharana Pratap.png","s":"475th birth Anniversary of Maharana Pratap","y":""},{"k":"r10-15","d":10,"f":"coins/10rs/reverse/Dr. B.R. Ambedkar 125th Birth Anniversary.png","b":"coins/10rs/obverse/Dr. B.R. Ambedkar 125th Birth Anniversary.png","s":"Dr. B.R. Ambedkar 125th Birth Anniversary","y":""},{"k":"r10-16","d":10,"f":"coins/10rs/reverse/3rd Indo-Africa Forum Summit.png","b":"coins/10rs/obverse/3rd Indo-Africa Forum Summit.png","s":"3rd Indo-Africa Forum Summit","y":""},{"k":"r10-17","d":10,"f":"coins/10rs/reverse/Lala Lajpat Rai 150th Birth Anniversary.png","b":"coins/10rs/obverse/Lala Lajpat Rai 150th Birth Anniversary.png","s":"Lala Lajpat Rai 150th Birth Anniversary","y":""},{"k":"r10-18","d":10,"f":"coins/10rs/reverse/National Archives of India.png","b":"coins/10rs/obverse/National Archives of India.png","s":"National Archives of India","y":""},{"k":"r10-19","d":10,"f":"coins/10rs/reverse/Dr. S Radhakrishnan 125th Birth Anniversary.png","b":"coins/10rs/obverse/Dr. S Radhakrishnan 125th Birth Anniversary.png","s":"Dr. S Radhakrishnan 125th Birth Anniversary","y":""},{"k":"r10-20","d":10,"f":"coins/10rs/reverse/60th Anniversary of Indian Parliament.png","b":"coins/10rs/obverse/60th Anniversary of Indian Parliament.png","s":"60th Anniversary of Indian Parliament","y":""},{"k":"r10-21","d":10,"f":"coins/10rs/reverse/500th Anniversary of Shri Krishna Chaitanya Mahaprabhu Coming to Vrindavan.png","b":"coins/10rs/obverse/500th Anniversary of Shri Krishna Chaitanya Mahaprabhu Coming to Vrindavan.png","s":"500th Anniversary of Shri Krishna Chaitanya Mahaprabhu Coming to Vrindavan","y":""},{"k":"r10-22","d":10,"f":"coins/10rs/reverse/200TH Birth Anniversary of Tatya Tope.png","b":"coins/10rs/obverse/200TH Birth Anniversary of Tatya Tope.png","s":"200TH Birth Anniversary of Tatya Tope","y":""},{"k":"r10-23","d":10,"f":"coins/10rs/reverse/Birth Centenary of Dr. M.S.Subbulakshmi.png","b":"coins/10rs/obverse/Birth Centenary of Dr. M.S.Subbulakshmi.png","s":"Birth Centenary of Dr. M.S.Subbulakshmi","y":""}]/*RC-END*/;
-REAL_COINS.forEach(r=>{COIN_DB[r.k]={key:r.k,denom:r.d,design:'real',cond:'clear',
-  file:r.f,back:r.b,ph:coinSVG(r.d,'a','clear'),
+/* Value-side-first: the child should first see the face that shows the numeric
+   value, for easy classification. Most coins carry it on the reverse (r.f), but
+   some carry it on the obverse — those file-name fragments are listed here
+   (verified by inspecting the images). For those we swap so the value side leads. */
+const VALUE_ON_OBVERSE=[ // commemoratives — the value numeral is on the emblem/obverse side (verified by image)
+  'X12','X21','X32',                                                                    // ₹1
+  'Indian Air Force Platinum','CHHATRAPATI SHIVAJI','Asian Games Delhi 1982','Sardar Vallabhbhai Patel', // ₹2
+  'World Tamil Conference - Saint','ONGC 2006 - Copper','75th Anniversary of Reserve Bank',
+  'Dadabhai Naoroji','Bal Gangadhar Tilak 2007 - Copper','37th Commonwealth Parliamentary', // ₹5
+  'Tatya Tope','International Day Of Yoga','Indo-Africa Forum','Shri Mata Vaishno Devi','Gur-Ta-Gaddi'  // ₹10
+];
+const valOnObv=r=>VALUE_ON_OBVERSE.some(fr=>fr&&r.f.toLowerCase().includes(fr.toLowerCase()));
+REAL_COINS.forEach(r=>{const sw=valOnObv(r);COIN_DB[r.k]={key:r.k,denom:r.d,design:'real',cond:'clear',
+  file:sw?r.b:r.f,back:sw?r.f:r.b,ph:coinSVG(r.d,'a','clear'),
   meta:{series:r.s||'',year:r.y||''}};});
 const RC_BY_D={};DENOMS.forEach(d=>RC_BY_D[d]=REAL_COINS.filter(r=>r.d===d).map(r=>r.k));
 const HAS_REAL=DENOMS.every(d=>RC_BY_D[d].length>=6); // fall back to drawn coins if photos absent
 
 /* ---------------- decks ---------------- */
 const C=k=>COIN_DB[k], O=k=>OBJ_DB[k];
-const TWENTY_K=['20-a-clear','20-b-clear','20-c-clear','20-a-faded','20-b-worn'];
 const L1_OBJS=Object.values(OBJ_DB); // all real not-coin object photos
 // L1 coin pool is defined after the curated lists below (it mixes the same coins).
 let L1_COINS=[],L1_BY_D={};
 function initL1Pool(){
   L1_BY_D={};
   for(const d of DENOMS)L1_BY_D[d]=(HAS_REAL
-    ?CURATED[d].train.concat(CURATED[d].test,CURATED[d].retrain).map(fr=>findK(d,fr)).filter(Boolean)
+    ?['train','testNew','l3New','l3TestNew'].reduce((a,role)=>a.concat(CURATED[d][role]||[]),[]).map(fr=>findK(d,fr)).filter(Boolean)
     :[`${d}-a-clear`,`${d}-b-clear`,`${d}-c-clear`,`${d}-a-faded`,`${d}-b-worn`]);
   // ₹20 is NOT used in L1; instead add extra ₹1 & ₹2 designs that are different
   // from every ₹1/₹2 coin used in the value lessons
@@ -661,7 +756,7 @@ function initL1Pool(){
   L1_COINS=[].concat(...DENOMS.map(d=>L1_BY_D[d])).map(C);
 }
 function buildL1Deck(n=40){
-  // guarantee ≥3 designs of every denomination (incl. ₹20), then top up randomly
+  // guarantee ≥3 designs of every denomination, then top up randomly
   const keys=[];
   for(const d of Object.keys(L1_BY_D))keys.push(...shuffle(L1_BY_D[d]).slice(0,3));
   const extra=shuffle([].concat(...Object.values(L1_BY_D)).filter(k=>!keys.includes(k)));
@@ -679,40 +774,49 @@ function buildL1Deck(n=40){
         }
   return out;
 }
+// L1 training deck: exactly 20 cards — 3 designs per denomination (12) + 8 non-coin objects.
+function getL1TrainingDeck(){
+  const coins=[];
+  for(const d of DENOMS)coins.push(...shuffle(L1_BY_D[d]||[]).slice(0,3)); // 3 designs × 4 denoms = 12
+  const coinItems=coins.map(C);
+  const objItems=shuffle(L1_OBJS).slice(0,8);                              // 8 of the 11 distractors
+  const out=shuffle(coinItems.concat(objItems));                          // 20 total
+  for(let i=1;i<out.length;i++) // no identical card twice in a row
+    if(out[i].key===out[i-1].key){const j=(i+1)%out.length;[out[i],out[j]]=[out[j],out[i]];}
+  return out;
+}
 const L1_MIN=12;
 // repeat + shuffle a set of coin keys to a target deck length
 function deckN(keys,n){const base=keys.map(C);const out=[];while(out.length<n)out.push(...shuffle(base));return shuffle(out.slice(0,n));}
-/* Curated value-lesson coins (user-specified, 2026-07-19).
-   train = taught in L2 · test = extra designs that appear only in the L2 test
-   (→ Unsure box, since the robot never trained on them) · retrain = added in L3.
-   Fragments are matched case-insensitively against the file names. */
+/* Curated value-lesson coins by ROLE (per denomination). Fragments are matched
+   case-insensitively against the file names.
+   train     = 4 designs taught in L2 (the "familiar" designs)
+   testNew   = 1 new design shown only in the L2 test → goes to the Unsure box
+   l3New     = 1 new design added during L3 retraining
+   l3TestNew = 1 new design shown only in the L3 (final) test */
 const CURATED={
-  1:{train:['X01','X06','X08','X09','X12'],test:['X24','X32'],retrain:['X19']},
-  2:{train:['NITYA MUDRA','Indian Air Force Platinum','Azadi Ka Amrit','Rupee Symbol Series','Asian Games Delhi 1982'],
-     test:['CHHATRAPATI SHIVAJI','Sardar Vallabhbhai Patel'],retrain:['RBI Golden Jubilee']},
-  5:{train:['Unity in Diversity','World Tamil Conference - Saint','ONGC 2006 - Copper','75th Anniversary of Reserve Bank','Bal Gangadhar Tilak 2007 - Copper'],
-     test:['Dadabhai Naoroji','37th Commonwealth Parliamentary'],retrain:['First War for Independence 2007 - Copper']},
-  10:{train:['Unity in diversity Series','Tatya Tope','International Day Of Yoga','Rupee Symbol Series','Shri Mata Vaishno Devi'],
-      test:['Indo-Africa Forum','Gur-Ta-Gaddi'],retrain:['National Archives of India']}
+  1:{train:['X01','X07','X08','X09'],testNew:['X21'],l3New:['X12'],l3TestNew:['X32']},
+  2:{train:['NITYA MUDRA','Indian Air Force Platinum','Azadi Ka Amrit','Rupee Symbol Series'],
+     testNew:['CHHATRAPATI SHIVAJI'],l3New:['Asian Games Delhi 1982'],l3TestNew:['Sardar Vallabhbhai Patel']},
+  5:{train:['Unity in Diversity','World Tamil Conference - Saint','ONGC 2006 - Copper','75th Anniversary of Reserve Bank'],
+     testNew:['Dadabhai Naoroji'],l3New:['Bal Gangadhar Tilak 2007 - Copper'],l3TestNew:['37th Commonwealth Parliamentary']},
+  10:{train:['Unity in diversity Series','Tatya Tope','International Day Of Yoga','Rupee Symbol Series'],
+      testNew:['Indo-Africa Forum'],l3New:['Shri Mata Vaishno Devi'],l3TestNew:['Gur-Ta-Gaddi']}
 };
 const findK=(d,frag)=>{const f=frag.toLowerCase();
   const r=REAL_COINS.find(r=>r.d===d&&r.f.toLowerCase().includes(f));
   if(!r)console.warn('curated coin not found:',d,frag);
   return r?r.k:null;};
-const mapCur=part=>[].concat(...DENOMS.map(d=>CURATED[d][part].map(fr=>findK(d,fr)))).filter(Boolean);
-const TRAIN_K=HAS_REAL?mapCur('train'):[].concat(...DENOMS.map(d=>[`${d}-a-clear`,`${d}-b-clear`]));    // 5 designs/denom = 20
-const NEWTEST_K=HAS_REAL?mapCur('test'):[].concat(...DENOMS.map(d=>[`${d}-c-clear`,`${d}-a-faded`]));   // 2 new designs/denom = 8
-const RETRAIN_K=HAS_REAL?mapCur('retrain'):[].concat(...DENOMS.map(d=>[`${d}-b-worn`]));                 // 1 new design/denom = 4
-// Each distinct design appears EXACTLY ONCE per deck (no padding) so tray counts are exact.
-const L2_TRAIN=shuffle(TRAIN_K.map(C));                    // 20 = 5 designs × 4 denoms
-const L2_TEST=shuffle(TRAIN_K.concat(NEWTEST_K).map(C));   // 28 → 5 per value box, 8 → Unsure box
-// L3 retrain = the 12 designs the robot doesn't yet know (8 that went to Unsure +
-// 4 brand-new) FIRST — so they're all taught even if Continue is pressed at 17 —
-// then the 20 already-known designs. The SAME 32 designs are the L3/final test.
-const L3_ALL=TRAIN_K.concat(NEWTEST_K,RETRAIN_K);         // 32 = 8 designs × 4 denoms
-const L3_TRAIN=shuffle(NEWTEST_K.concat(RETRAIN_K)).map(C).concat(shuffle(TRAIN_K).map(C));
-const FINAL_TEST=shuffle(L3_ALL.map(C));                  // L3 test data = the L3 training data (same 32)
-initL1Pool(); // L1 mixes these same curated coins (needs CURATED/findK, so built here)
+const cur=(d,role)=>(CURATED[d][role]||[]).map(fr=>findK(d,fr)).filter(Boolean);
+const flatRole=role=>[].concat(...DENOMS.map(d=>cur(d,role)));
+// Key arrays for the value lessons (each distinct design appears once per deck).
+const L2_TRAIN_K   = flatRole('train');                                     // 16 (4/denom)  — taught in L2
+const L2_TESTFAM_K = [].concat(...DENOMS.map(d=>cur(d,'train').slice(0,3))); // 12 (3/denom)  — familiar in L2 test
+const L2_NEW_K     = flatRole('testNew');                                   // 4  (1/denom)  — new → Unsure in L2 test
+const L3_FAM_K     = [].concat(...DENOMS.map(d=>cur(d,'train').slice(0,2))); // 8  (2/denom)  — familiar carried into L3
+const L3_NEW_K     = flatRole('l3New');                                     // 4  (1/denom)  — new design added in L3
+const L3_TESTNEW_K = flatRole('l3TestNew');                                 // 4  (1/denom)  — new design in the final test
+initL1Pool(); // L1 mixes these same curated coins (needs CURATED/findK/cur, so built here)
 
 /* ---------------- learning model: AI follows the child's labels ---------------- */
 function makeModel(){
@@ -740,7 +844,7 @@ const coinModel=makeModel();   // 'coin' | 'notcoin'
 const valueModel=makeModel();  // '1' | '2' | '5' | '10'
 
 /* ---------------- tracking (spec §25) ---------------- */
-const TRACK={level1_training_labels:[],level1_test_results:[],level2_training_labels:[],
+const TRACK={level1_training_labels:[],level1_test_results:[],level1_consequence:[],level2_training_labels:[],
   level2_test_results:[],unsure_coin_ids:[],reflection_choice:null,coins_inspected:[],
   level3_retraining_labels:[],final_test_results:[],gallery_coins_opened:[],current_state:''};
 window.TRACK=TRACK;
@@ -855,10 +959,11 @@ function say(lines,opts={}){
     const txt=bubble.querySelector('.txt');
     let cur='',typing=false,idx=0,timer=null;
     function type(line){
-      typing=true;cur=line;txt.textContent='';
-      // the robot lip-syncs only its own quoted lines, not the narrator's
+      typing=true;txt.textContent='';
+      // the robot lip-syncs only its own quoted lines, not the narrator's (detect on the raw line)
       if(robotEl&&!opts.noTalk){/^["“]/.test(line.trim())?startTalk():stopTalk();}
-      const parts=line.split(/(\s+)/);let wi=0; // reveal word by word
+      cur=line.replace(/[“”"]/g,''); // strip inverted commas from what the bubble displays
+      const parts=cur.split(/(\s+)/);let wi=0; // reveal word by word
       startTypingLoop(); // typing sound plays for as long as the line is typing
       timer=setInterval(()=>{txt.textContent+=parts[wi++]||'';
         if(wi>=parts.length){clearInterval(timer);typing=false;stopTypingLoop();}},95);
@@ -916,9 +1021,12 @@ function primaryBtn(ly,label,id='btn-primary'){
   return $('#'+id);
 }
 function waitBtn(btn){return new Promise(r=>btn.addEventListener('click',()=>{sfx('click');r();},{once:true}));}
-function popup(html){ // returns promise resolving with data-val of clicked .pbtn
+function popup(html,opts={}){ // returns promise resolving with data-val of clicked .pbtn
   return new Promise(r=>{
-    stage.insertAdjacentHTML('beforeend',`<div class="overlay fade-in"><div class="panel">${html}</div></div>`);
+    // opts.top → anchor the panel that many px from the top (instead of vertically centred),
+    // used when a robot/character above it must not be overlapped
+    const ovStyle=opts.top!=null?` style="align-items:flex-start;padding-top:${opts.top}px"`:'';
+    stage.insertAdjacentHTML('beforeend',`<div class="overlay fade-in"${ovStyle}><div class="panel">${html}</div></div>`);
     const overlay=stage.lastElementChild,panel=overlay.querySelector('.panel');
     overlay.querySelectorAll('.pbtn').forEach(b=>b.onclick=()=>{
       sfx('click');const v=b.dataset.val;overlay.remove();r(v);});
@@ -987,27 +1095,21 @@ async function trainingScene(cfg){
   const cnum=$('#cnum'),undoBtn=$('#undoBtn');
   const labelBtns=[...document.querySelectorAll('#labelrow .label-btn')];
   labelBtns.forEach(b=>b.disabled=true);
-  // coin cards auto-flip in the scanner so the child sees BOTH faces; the
-  // label buttons stay locked until the flip cycle finishes (real photos only)
-  let introDone=false,cardReady=false,flipTimers=[];
+  // No auto-flip. L1 (coin/not-coin) tabs are active immediately; L2/L3 value tabs
+  // unlock only after the child flips the coin to see both sides.
+  let introDone=false,cardReady=false;
   const setLabels=on=>labelBtns.forEach(b=>b.disabled=!on);
 
   function showCard(item){
-    flipTimers.forEach(clearTimeout);flipTimers=[];
     $('#cardslot').innerHTML=
       `<div class="card enter" data-key="${item.key}">
          <div class="flipI">
            <div class="face f"><div class="ph">${imgTag(item)}</div></div>
-           <div class="face b">${backTag(item)}</div>
+           <div class="face b"><div class="ph">${backFace(item)}</div></div>
          </div></div>`;
-    const c=$('#cardslot .card'); // tap the polaroid to flip it any time
+    const c=$('#cardslot .card'); // tap the polaroid to flip it (manual only)
     c.onclick=()=>{c.classList.toggle('flipped');sfx('card-whoosh');}; // whoosh when the polaroid flips
-    if(item.back){
-      cardReady=false;setLabels(false);
-      flipTimers.push(setTimeout(()=>{c.classList.add('flipped');sfx('card-whoosh');},500)); // whoosh when the polaroid flips (1.5s faster)
-      flipTimers.push(setTimeout(()=>{c.classList.remove('flipped');},2400));
-      flipTimers.push(setTimeout(()=>{cardReady=true;if(introDone)setLabels(true);},2700));
-    }else{cardReady=true;if(introDone)setLabels(true);}
+    cardReady=true;if(introDone)setLabels(true); // tabs active immediately (no auto-flip, no both-sides gating)
   }
   function renderQueue(step){ // row of upcoming cards, marching in from the left edge
     [0,1,2].forEach(i=>{
@@ -1046,6 +1148,18 @@ async function trainingScene(cfg){
         <p>Look closely at this coin and its value before choosing.</p>
         <div class="row"><button class="pbtn amber" data-val="ok">Check again</button></div>`);
       return; // don't accept — same card stays so the child re-looks and picks again
+    }
+    // L1 loop-breaker: once enabled (from the 3rd training round), a wrong coin/not-coin
+    // label is not accepted — nudge the child to re-look so retraining truly fixes mistakes.
+    if(cfg.checkWrong){
+      const correct=cur.key.startsWith('obj-')?'notcoin':'coin';
+      if(String(val)!==correct){
+        sfx('check-again');
+        await popup(`<h3>Check once again</h3>
+          <p>Look closely at this picture again before you decide — is it really ${val==='coin'?'a coin':'not a coin'}?</p>
+          <div class="row"><button class="pbtn amber" data-val="ok">Check again</button></div>`);
+        return; // same card stays; the child re-looks and picks again
+      }
     }
     sfx('click'); // tab press
     labelBtns.forEach(b=>b.disabled=true);
@@ -1114,11 +1228,11 @@ async function testScene(cfg){
   addRobot(ly,{center:true,y:40,w:300,state:'neutral'});
   ly.insertAdjacentHTML('beforeend','<div class="beam" id="beam" style="visibility:hidden"></div>');
   trayRow(ly,cfg.trays);
-  const runBtn=primaryBtn(ly,'▶ '+(cfg.runLabel||'Run'),'btn-run');
+  const runBtn=primaryBtn(ly,'▶ '+(cfg.runLabel||'Run'),'btn-run'); // bottom-centre via .primary
   runBtn.disabled=true;
   if(cfg.introLines)await say(cfg.introLines);
   runBtn.disabled=false;
-  arrowAt(ly,'calc(100% - 178px)',690);
+  arrowAt(ly,'calc(50% - 45px)',690);
   await waitBtn(runBtn);
   ly.querySelector('.bigArrow')?.remove();
   runBtn.remove();
@@ -1229,20 +1343,25 @@ const DCOLOR={1:'#3E7BD6',2:'#3FA65C',5:'#E08A2E',10:'#8B5CC7'};
 async function homeScene(){
   TRACK.current_state='home';setPhase(0);
   const ly=scene('stall','bg-fruit-stall.png');
+  $('#bgwall').classList.add('home-bg'); // blur + desaturate the backdrop on the title screen only
   $('#topbar').classList.add('home-hidden');$('#stagewrap').style.top='0'; // no chrome; bg fills to the very top
   const W='CoınBot'; // dotless ı — the cyan scanner light stands in for its dot
   ly.insertAdjacentHTML('beforeend',
     `<div id="homeTitle">
        <span class="ct-word">
-         <span class="ct-layer ct-outer" aria-hidden="true">${W}</span>
-         <span class="ct-layer ct-inner" aria-hidden="true">${W}</span>
+         <span class="ct-layer ct-ext" aria-hidden="true"><span class="ec">Coın</span><span class="eb">Bot</span></span>
+         <span class="ct-layer ct-stroke" aria-hidden="true">${W}</span>
          <span class="ct-layer ct-fill" aria-hidden="true"><span class="fc-coin">Coın</span><span class="fc-bot">Bot</span></span>
-         <span class="ct-layer ct-hi" aria-hidden="true">${W}</span>
+         <span class="ct-layer ct-shine" aria-hidden="true">${W}</span>
          <span class="ct-layer ct-anchor">Co<span class="ct-i">ı</span>nBot</span>
        </span>
-       <div class="ct-sub">Sort Smarter!</div>
+       <div class="ct-subwrap">
+         <span class="ct-deco l" aria-hidden="true"><i></i><i></i><i></i></span>
+         <div class="ct-sub">Sort Smarter!</div>
+         <span class="ct-deco r" aria-hidden="true"><i></i><i></i><i></i></span>
+       </div>
      </div>
-     <button id="homeStart">▶ Start</button>`);
+     <button id="homeStart"><span class="hs-play" aria-hidden="true"><span class="hs-tri"></span></span>Start</button>`);
   // Title & Start are positioned/sized via CSS against the stage, so they stay on-screen
   // and consistently sized at any window aspect ratio (the painting crops behind them).
   await waitBtn($('#homeStart')); // this tap grants audio activation for the opening video
@@ -1269,25 +1388,36 @@ async function openingScene(){
        box-shadow:0 4px 16px rgba(0,0,0,.45);text-align:center;display:none"></div>
      <button class="bigbtn" id="opStart"
        style="left:0;right:0;margin:0 auto;width:260px;top:calc(50% - 42px);text-align:center;background:var(--amber);color:#fff;font-size:30px;padding:20px 0;display:none">▶ Play</button>
-     <button class="bigbtn" id="opTrain" disabled
-       style="right:18px;bottom:18px;background:var(--amber);color:#fff;font-size:17px;padding:11px 25px">Let's train the robot</button>`;
+     <button class="bigbtn" id="opTrain"
+       style="left:50%;transform:translateX(-50%);bottom:38px;background:var(--amber);color:#fff;font-size:27px;padding:16px 46px;display:none">Let's train the robot</button>`;
   document.body.appendChild(wrap);
   const vid=$('#opVid'),startBtn=$('#opStart'),trainBtn=$('#opTrain'),cap=$('#opCap');
   vid.muted=muted;
   // Captions synced to the video timeline. Each entry shows from its `t` (seconds) onward.
   const CAPS=[
-    {t:0,    text:'Oh no! This box is completely mixed.'},
-    {t:3.57, text:'It will take forever to sort these coins.'},
-    {t:5.97, text:'Maybe my robot can help if I train it.'}
+    {t:0,    text:'These coins are completely mixed up.'},
+    {t:3.57, text:'It will take forever to sort these mixed coins.'},
+    {t:5.97, text:'Maybe my robot can help me if I train it to sort the coins.'}
   ];
   await new Promise(res=>{
     let done=false;const finish=()=>{if(done)return;done=true;res();};
-    const complete=()=>{trainBtn.disabled=false;}; // unlock the tab
+    let ended=false;
+    const complete=()=>{ // video stops → captions disappear, CTA appears centred in their place
+      if(ended)return;ended=true;
+      cap.style.display='none';       // captions gone
+      trainBtn.style.display='';      // "Let's train the robot" shows, centred where captions were
+      try{vid.pause();}catch(e){}     // cut the last 0.4s
+    };
     vid.addEventListener('timeupdate',()=>{
+      if(ended)return;                // once stopped, stop updating captions
       const ct=vid.currentTime;
-      if(vid.duration&&ct>=vid.duration-2)complete(); // unlock 2s before the video ends
+      if(vid.duration&&ct>=vid.duration-0.4){complete();return;} // stop 0.4s before the end
       let txt='';for(const c of CAPS)if(ct>=c.t)txt=c.text;
       cap.textContent=txt;cap.style.display=txt?'':'none';
+      // keep the final (longest) caption on one straight line; others wrap as before
+      const isLast=txt===CAPS[CAPS.length-1].text;
+      cap.style.whiteSpace=isLast?'nowrap':'normal';
+      cap.style.maxWidth=isLast?'none':'66%';
     });
     const begin=()=>{ // arrive here from the Home "Start" tap → try to autoplay with sound
       startBtn.style.display='none';cap.textContent=CAPS[0].text;cap.style.display='';
@@ -1303,9 +1433,10 @@ async function openingScene(){
   l1Training();
 }
 
-let l1Introduced=false;
+let l1Introduced=false,l1Attempts=0;
 async function l1Training(){
   TRACK.current_state='level1_training';
+  l1Attempts++; // counts every L1 training round (first pass + each retrain)
   const intro=l1Introduced?null:
     ['Meet your sorting robot.',
      'It does not know what coins look like.',
@@ -1315,39 +1446,44 @@ async function l1Training(){
   await trainingScene({
     phaseIdx:1,sceneCls:'room',bgFile:'bg-sorting-room.png',
     question:'Is this a coin?',
-    deck:buildL1Deck(40),minCards:15,continueMode:true,continueLabel:'Continue',
+    deck:getL1TrainingDeck(), // 20 cards: 12 coins (3/denom) + 8 non-coins
     introLines:intro,introArrow:true,
-    buttons:[{label:'Not Coin',value:'notcoin',cls:'reject',icon:'⃠'},
-             {label:'Coin',value:'coin',icon:'✓'}],
-    model:coinModel,labelStore:TRACK.level1_training_labels,trainPhase:'first'
+    buttons:[{label:'Not Coin',value:'notcoin',cls:'reject'},
+             {label:'Coin',value:'coin'}],
+    model:coinModel,labelStore:TRACK.level1_training_labels,trainPhase:'first',
+    // from the 3rd training round on (i.e. after 2 tries), nudge "check again" on a wrong
+    // label so re-training actually corrects the mistake and the child can't loop forever
+    checkWrong:l1Attempts>=3
   });
   l1TestIntro();
 }
 
 async function l1TestIntro(){
   TRACK.current_state='level1_test';
-  // 26-card test sampled (with repeats) from the keys the child actually trained on
-  const trained=k=>coinModel.data.has(k);
-  let coinPool=L1_COINS.filter(i=>trained(i.key));
-  let objPool=L1_OBJS.filter(i=>trained(i.key));
-  if(!coinPool.length)coinPool=L1_COINS.slice();
-  if(!objPool.length)objPool=L1_OBJS.slice();
-  const pick=a=>a[Math.floor(Math.random()*a.length)];
-  const deck=[];
-  for(let i=0;i<44;i++)deck.push(Math.random()<.58?pick(coinPool):pick(objPool)); // larger L1 test data
+  // 13-card test: 8 coin images + 5 not-coin images, drawn from what the child trained on.
+  // Any item the child MISLABELLED is included first, so the robot repeats that mistake here
+  // and its consequence surfaces on the result screen.
+  const isObj=k=>k.startsWith('obj-');
+  const labelOf=k=>coinModel.predict(k)||'notcoin';
+  const trainedKeys=[...coinModel.data.keys()];
+  const coinKeys=trainedKeys.filter(k=>!isObj(k));
+  const objKeys=trainedKeys.filter(k=>isObj(k));
+  const misCoins=coinKeys.filter(k=>labelOf(k)==='notcoin'); // real coins the child called "not coin"
+  const misObjs=objKeys.filter(k=>labelOf(k)==='coin');       // objects the child called "coin"
+  const fbCoins=L1_COINS.map(i=>i.key), fbObjs=L1_OBJS.map(i=>i.key);
+  const take=(primary,pool,fb,n)=>{ // mislabelled first, then TRAINED pool, then fallback, padding by repeat if short
+    const out=[...new Set(primary)].slice(0,n);
+    const add=arr=>{for(const k of shuffle([...new Set(arr)])){if(out.length>=n)break;if(!out.includes(k))out.push(k);}};
+    add(pool);  // only coins the child actually trained on — so the robot recognises them
+    add(fb);    // untrained fallback used only if the trained pool is too small
+    let i=0;const src=(pool.length?pool:fb);while(out.length<n&&src.length)out.push(src[i++%src.length]);
+    return out.slice(0,n);
+  };
+  const keys=take(misCoins,coinKeys,fbCoins,8).concat(take(misObjs,objKeys,fbObjs,5));
+  const deck=shuffle(keys).map(k=>COIN_DB[k]||OBJ_DB[k]).filter(Boolean);
   for(let i=1;i<deck.length;i++) // avoid the same card twice in a row
     if(deck[i].key===deck[i-1].key){const j=(i+1)%deck.length;[deck[i],deck[j]]=[deck[j],deck[i]];}
   const results=await l1ConveyorTest(deck);
-  // guarantee ≥22 "coins" and ≥15 "not coins" for the review, even if Continue was pressed early
-  let nc=results.filter(r=>r.verdict.tray==='coins').length;
-  let nn=results.filter(r=>r.verdict.tray==='notcoins').length;
-  let guard=0;
-  while((nc<22||nn<15)&&guard++<600){
-    const item=(nc<22)?pick(coinPool):pick(objPool);
-    const good=(coinModel.predict(item.key)||'notcoin')==='coin';
-    results.push({key:item.key,verdict:{tray:good?'coins':'notcoins',kind:good?'good':'bad'}});
-    if(good)nc++;else nn++;
-  }
   TRACK.level1_test_results=results;
   await sleep(500);
   l1Review(results);
@@ -1373,20 +1509,17 @@ async function l1ConveyorTest(deck){
     });
   }
   renderTQ();
-  const runBtn=primaryBtn(ly,'▶ Run','btn-run');runBtn.disabled=true;
+  const runBtn=primaryBtn(ly,'▶ Run','btn-run');runBtn.disabled=true; // bottom-centre via .primary
   await say(['Now let’s see if the robot can identify what coins look like.',
              'Robot will analyze a random set of objects and label them based on your training.']);
   runBtn.disabled=false;
-  arrowAt(ly,'calc(100% - 178px)',690);
+  arrowAt(ly,'calc(50% - 45px)',690);
   await waitBtn(runBtn);
   ly.querySelector('.bigArrow')?.remove();runBtn.remove();
   $('#beam').style.visibility='visible';
-  // Continue unlocks in the lower-right once 15 polaroids have been scanned
-  let scanned=0,stopEarly=false;
-  const contBtn=primaryBtn(ly,'Continue','btn-tcont');contBtn.disabled=true;
-  contBtn.onclick=()=>{sfx('click');stopEarly=true;contBtn.disabled=true;};
+  // short test — scans the whole (small) deck so every card's result is captured
   const results=[];
-  while(deck.length&&!stopEarly){
+  while(deck.length){
     const item=deck.shift();renderTQ();
     ly.insertAdjacentHTML('beforeend',
       `<div class="card enter" id="tcard" style="left:calc(50% - 125px);top:430px;width:250px;height:300px;padding:16px 16px 44px">
@@ -1404,11 +1537,8 @@ async function l1ConveyorTest(deck){
     await sleep(300);
     if(!good)sfx('tray-drop');
     tc.remove();setRobot('neutral');
-    scanned++;
-    if(scanned>=15){contBtn.disabled=false;contBtn.classList.add('glowbtn');} // unlocks + glows
     await sleep(110);
   }
-  contBtn.remove();
   $('#beam').style.visibility='hidden';
   return results;
 }
@@ -1416,75 +1546,85 @@ async function l1ConveyorTest(deck){
 async function l1Review(results){
   TRACK.current_state='level1_results';setPhase(2);
   const toItem=r=>COIN_DB[r.key]||OBJ_DB[r.key];
-  const coinsItems=results.filter(r=>r.verdict.tray==='coins').map(toItem).filter(Boolean).slice(0,22);
-  const notItems=results.filter(r=>r.verdict.tray==='notcoins').map(toItem).filter(Boolean).slice(0,15);
+  const coinsItems=results.filter(r=>r.verdict.tray==='coins').map(toItem).filter(Boolean).slice(0,12);
+  const notItems=results.filter(r=>r.verdict.tray==='notcoins').map(toItem).filter(Boolean).slice(0,12);
   const ly=scene('room','bg-sorting-room.png');
-  bubbleBottom=12; // keep the speech bubble low so it never overlaps the lowered robot
+  bubbleBottom=170; // dialogue sits centred below the robot, above the buttons
+  // Coins on the LEFT, Not-coins on the RIGHT, robot centred between them — both groups visible at once.
   ly.insertAdjacentHTML('beforeend',
-    `<div class="headline" id="rvHead" style="font-size:40px;top:52px">Robot identified these as coins</div>
-     <div id="reviewGrid"></div>
-     <button class="tglTab active" id="tglGood" title="Objects identified as coins">✓</button>
-     <button class="tglTab" id="tglBad" title="Objects identified as not coins">✕</button>`);
-  addRobot(ly,{center:true,y:542,w:176,state:'happy'}); // robot sits lower; dialogue sits below it
-  let mode='good';const badKeys=new Set();
-  function rowSplit(n){ // top row largest — 22→[8,7,7], 15→[8,7], ≤8→[n]
-    if(n<=8)return[n];
-    if(n<=15)return[Math.ceil(n/2),Math.floor(n/2)];
-    const b=Math.floor(n/3),r=n-b*3;return[b+(r>0?1:0),b+(r>1?1:0),b];
-  }
+    `<div class="headline" style="font-size:34px;top:22px">How did the robot sort?</div>
+     <div class="revcol" style="left:calc(16px + 7%)"><div class="colhead" style="color:#7BE3A8">Coins</div><div class="colgrid" id="coinsGrid"></div></div>
+     <div class="revcol" style="right:calc(16px + 7%)"><div class="colhead" style="color:#FF9E9E">Not coins</div><div class="colgrid" id="notGrid"></div></div>`);
+  addRobot(ly,{center:true,y:300,w:230,state:'happy'});
+  const badKeys=new Set();
   function cell(i){return `<div class="rItem${badKeys.has(i.key)?' badItem':''}" data-key="${i.key}">
        <div class="flipI"><div class="face f">${imgTag(i)}</div>
-       <div class="face b">${backTag(i)}</div></div></div>`;}
-  function renderGrid(){
-    const items=mode==='good'?coinsItems:notItems;
-    $('#rvHead').textContent=mode==='good'?'Robot identified these as coins':'Robot identified these as not coins';
-    if(!items.length){$('#reviewGrid').innerHTML='<div style="font-size:26px;opacity:.85">Nothing in this group.</div>';return;}
-    const sizes=rowSplit(items.length);let idx=0,html='';
-    for(const s of sizes){html+='<div class="rvRow">'+items.slice(idx,idx+s).map(cell).join('')+'</div>';idx+=s;}
-    $('#reviewGrid').innerHTML=html;
+       <div class="face b">${backFace(i)}</div></div></div>`;}
+  function renderCols(){
+    $('#coinsGrid').innerHTML=coinsItems.length?coinsItems.map(cell).join(''):'<div class="colempty">None</div>';
+    $('#notGrid').innerHTML=notItems.length?notItems.map(cell).join(''):'<div class="colempty">None</div>';
   }
-  $('#reviewGrid').onclick=e=>{ // tap a polaroid: tap1 = enlarge, tap2 = flip, tap3 = settle back
-    const it=e.target.closest('.rItem');
-    if(!it)return;
+  let zoomed=null; // only one card may be enlarged at a time
+  ly.addEventListener('click',e=>{ // tap a polaroid: enlarge → flip → settle back
+    const it=e.target.closest('.rItem');if(!it)return;
+    // if another card is already big, settle it first — the new card enlarges only after it has settled
+    if(zoomed&&zoomed!==it){
+      const prev=zoomed;prev.classList.remove('zoom','flipped');prev._taps=0;zoomed=null;
+      sfx('click');
+      setTimeout(()=>{it._taps=1;it.classList.add('zoom');zoomed=it;},300); // wait out the .3s settle transition
+      return;
+    }
     const taps=(it._taps||0)+1;it._taps=taps;
-    if(taps===1){sfx('click');it.classList.add('zoom');}          // enlarge for a clear look
-    else if(taps===2){sfx('card-whoosh');it.classList.add('flipped');} // flip to the back
-    else{it.classList.remove('zoom','flipped');it._taps=0;}        // settle back
-  };
-  function setMode(m){mode=m;sfx('click');
-    $('#tglGood').classList.toggle('active',m==='good');
-    $('#tglBad').classList.toggle('active',m==='bad');
-    renderGrid();
-  }
-  $('#tglGood').onclick=()=>setMode('good');
-  $('#tglBad').onclick=()=>setMode('bad');
-  renderGrid();
-  await say(['Based on your training, here is what the robot identified as coins.',
-             'How did the robot do?']);
-  arrowAt(ly,'calc(100% - 128px)',96,180);
-  await say(['Switch between objects identified as coins and not coins.']);
-  ly.querySelector('.bigArrow')?.remove();
-  await say(['Robot only learns from what you show him.']);
-  // arrow points down onto the first coin polaroid (row 1 = 8 coins of 128px, centre-anchored calc)
-  arrowAt(ly,'calc(50% - 535px)',8);
-  await say(['Tap the coins and look at them properly.']);
-  ly.querySelector('.bigArrow')?.remove();
-  ly.insertAdjacentHTML('beforeend',
-    `<button class="bigbtn secondary" id="btn-again" style="left:24px;bottom:24px">Train More</button>`);
+    if(taps===1){sfx('click');it.classList.add('zoom');zoomed=it;}
+    else if(taps===2){sfx('card-whoosh');it.classList.add('flipped');}
+    else{it.classList.remove('zoom','flipped');it._taps=0;zoomed=null;}
+  });
+  renderCols();
+  await say(['Based on your training, here is how the robot sorted.','How did it do?']);
+  await say(['The robot only learns from what you show it.','Tap a card to look closely.']);
+  // primary "Continue" centred at the bottom (§2); neutral "Train More" in its bottom-left secondary spot
+  ly.insertAdjacentHTML('beforeend',`<button class="bigbtn secondary" id="btn-again">Train More</button>`);
   const goBtn=primaryBtn(ly,'Continue','btn-values');
-  goBtn.style.right='24px';goBtn.style.bottom='24px';
-  $('#btn-again').onclick=()=>{sfx('click');l1Training();};
+  const againBtn=$('#btn-again');
+  againBtn.onclick=()=>{sfx('click');l1Training();};
+  // record only the child's FIRST answer to each consequence prompt (telemetry / "back end")
+  const recordFirst=tag=>(choice,ok)=>{TRACK.level1_consequence.push({tag,firstChoice:choice,correct:ok});};
   goBtn.onclick=async()=>{
     sfx('click');
-    const bad=coinsItems.filter(i=>i.key.startsWith('obj-'));
-    if(bad.length===0&&coinsItems.length>0){coinTalk();return;}
+    const notCoinInCoin=coinsItems.filter(i=>i.key.startsWith('obj-')); // objects the robot called coins
+    const coinInNotCoin=notItems.filter(i=>!i.key.startsWith('obj-'));   // real coins the robot called not-coins
+    if(!notCoinInCoin.length&&!coinInNotCoin.length){coinTalk();return;} // robot got everything right → sort by value
     goBtn.disabled=true;
-    bad.forEach(b=>badKeys.add(b.key));
-    setMode('good');
-    setRobot('concerned');
-    if(bad.length)await say(['Look again. Is everything here really a coin?',
-                             'Press Train More to fix it.']);
-    else await say(['The robot did not find any coins.','Press Train More to teach it with better examples.']);
+    // Category 1 — non-coin(s) wrongly placed in the Coin group
+    if(notCoinInCoin.length){
+      notCoinInCoin.forEach(b=>badKeys.add(b.key));renderCols();setRobot('concerned');
+      await say(['Look at what the robot put with the coins.']);
+      await choiceQuiz('The robot identified this as a coin. But will the customer take it as a coin?',
+        [{txt:'Yes',fb:'A shopkeeper will not accept this as money.'},
+         {txt:'No',ok:true,fb:'Right — the customer will not take it.'}],
+        recordFirst('notCoinInCoin_customer'));
+      await choiceQuiz('What should we do now?',
+        [{txt:'Leave it confused',fb:'Then the robot will keep making this mistake.'},
+         {txt:'Retrain the robot',ok:true,fb:'Yes — teach it with better examples.'}],
+        recordFirst('notCoinInCoin_action'));
+    }
+    // Category 2 — real coin(s) wrongly placed in the Not-Coin group
+    if(coinInNotCoin.length){
+      coinInNotCoin.forEach(b=>badKeys.add(b.key));renderCols();setRobot('concerned');
+      await say(['Look at what the robot put in not coins.']);
+      await choiceQuiz('The robot identified this as not a coin. If the customer gives it to you, it will reject the coin. Do you want that?',
+        [{txt:'Yes',fb:'You would lose a real coin.'},
+         {txt:'No',ok:true,fb:'Right — you don’t want a real coin rejected.'}],
+        recordFirst('coinInNotCoin_customer'));
+      await choiceQuiz('What should we do now?',
+        [{txt:'Leave it confused',fb:'Then the robot will keep making this mistake.'},
+         {txt:'Retrain the robot',ok:true,fb:'Yes — teach it with better examples.'}],
+        recordFirst('coinInNotCoin_action'));
+    }
+    // retrain from a clean slate so re-labelling correctly actually fixes the mistake
+    // (the model accumulates otherwise, and a tie keeps the first-seen label)
+    coinModel.data.clear();
+    l1Training();
   };
 }
 
@@ -1511,7 +1651,7 @@ async function coinTalk(){
 }
 
 /* guided multiple-choice: wrong options turn red and shake; feedback leads to the right answer */
-function choiceQuiz(question,options){
+function choiceQuiz(question,options,onFirst){
   return new Promise(res=>{
     const opts=shuffle(options);
     stage.insertAdjacentHTML('beforeend',
@@ -1523,19 +1663,21 @@ function choiceQuiz(question,options){
          <p class="qfb" style="display:none"></p>
        </div></div>`);
     const ov=stage.lastElementChild,fb=ov.querySelector('.qfb');
+    let firstDone=false; // record only the child's FIRST interaction with this prompt
     ov.querySelectorAll('.pbtn').forEach(b=>b.onclick=()=>{
       const o=opts[+b.dataset.i];
+      if(!firstDone){firstDone=true;onFirst&&onFirst(o.txt,!!o.ok);}
       if(o.ok){
         sfx('correct-chime');
         b.classList.add('rightOpt');
         ov.querySelectorAll('.pbtn').forEach(x=>x.onclick=null);
-        if(o.fb){fb.textContent='“'+o.fb+'”';fb.style.display='';}
+        if(o.fb){fb.textContent=o.fb;fb.style.display='';}
         setTimeout(()=>{ov.remove();res();},o.fb?2200:700);
       }else{
         sfx('reject-thud');
         b.classList.add('wrongOpt'); // red + vibrate, then reverts after 5s
         b.disabled=true;
-        if(o.fb){fb.textContent='“'+o.fb+'”';fb.style.display='';}
+        if(o.fb){fb.textContent=o.fb;fb.style.display='';}
         setTimeout(()=>{b.classList.remove('wrongOpt');b.disabled=false;fb.style.display='none';},5000);
       }
     });
@@ -1558,24 +1700,25 @@ async function l2Training(){
   await trainingScene({
     phaseIdx:3,sceneCls:'room',bgFile:'bg-sorting-room.png',
     question:'What is the value of this coin?',
-    deck:L2_TRAIN,minCards:L2_TRAIN.length,
+    deck:shuffle(L2_TRAIN_K.map(C)), // 16 = 4 designs × 4 denominations
     buttons:DENOMS.map(d=>({label:'₹'+d,value:String(d),cls:'denom',color:DCOLOR[d]})),
     model:valueModel,labelStore:TRACK.level2_training_labels,trainPhase:'first',
-    reinforce:{13:'Remember! Robot only learns from what you show him.'},
     introLines:['Teach the robot ₹1, ₹2, ₹5, and ₹10.']
   });
   l2Test();
 }
 
-async function l2Test(){
-  TRACK.current_state='level2_test';
-  const deck=L2_TEST.slice();
+const UNSURE_TRAY={id:'unsure',label:'Unsure ?',color:'#7A5A17',cls:'unsure',art:'box-unsure.png'};
+// Reusable L2 value sort — 16 cards (3 familiar + 1 new / denomination). The 4 new
+// designs are untrained, so they go to the Unsure box. Returns the unsure items.
+async function runL2Sort(introLines){
+  const deck=shuffle(L2_TESTFAM_K.concat(L2_NEW_K).map(C)); // 16
   const unsureItems=[];
   const results=await testScene({
     phaseIdx:4,sceneCls:'test',bgFile:'bg-sorting-room.png',
-    deck,trays:VALUE_TRAYS.concat([{id:'unsure',label:'Unsure ?',color:'#7A5A17',cls:'unsure',art:'box-unsure.png'}]),
-    runLabel:'Run Test',showcase:true,
-    introLines:['Now the robot will sort the coins by value.'],
+    deck,trays:VALUE_TRAYS.concat([UNSURE_TRAY]),
+    runLabel:'Run Test',showcase:false,
+    introLines,
     predict(item){
       const p=valueModel.predict(item.key);
       if(p)return{tray:'d'+p,kind:'good',chip:'₹'+p};
@@ -1584,41 +1727,39 @@ async function l2Test(){
     }
   });
   TRACK.level2_test_results=results;
-  // dedupe by key and cap the inspect list so checking every unsure coin stays reasonable
-  const uniqUnsure=[...new Map(unsureItems.map(i=>[i.key,i])).values()].slice(0,8);
+  return [...new Map(unsureItems.map(i=>[i.key,i])).values()];
+}
+
+async function l2Test(){
+  TRACK.current_state='level2_test';
+  const uniqUnsure=await runL2Sort(['Now the robot will sort the coins by value.']);
   TRACK.unsure_coin_ids=uniqUnsure.map(i=>i.key);
   unsureResults(uniqUnsure);
 }
 
 async function unsureResults(unsureItems){
   TRACK.current_state='level2_unsure_results';setPhase(5);
-  const ly=$('#ly');
   setRobot('unsure');
   await say(['The robot sorted the familiar coin designs.',
              'But it placed some coins in the Unsure Box.']);
-  // reflection question
+  // "Why is the robot unsure?" — 3 reasons, only the training-variety one is accepted
   TRACK.current_state='reflection_question';
-  const opts=shuffle([
-    {val:'A',txt:'The robot has not seen these coins before.'},
-    {val:'B',txt:'They have no value.'}]);
-  const choice=await popup(
-    `<h3>Think about it</h3>
-     <p>These coins have the same values as other coins.<br>Why did the robot not recognise them?</p>
-     <div class="row">${opts.map(o=>`<button class="pbtn choice" data-val="${o.val}">${o.txt}</button>`).join('')}</div>`);
-  TRACK.reflection_choice=choice;
-  if(choice==='B'){
-    await say(['Check the coins closely before deciding.']);
-  }else{
-    await say(['Good thinking. Check the coins to confirm.']);
-  }
-  // glow + arrow on unsure box, wait for tap
+  await choiceQuiz('Why is the robot unsure about these coins?',
+    [{txt:'The robot is unable to see the images',fb:'But it sorted the other coins correctly — so it can see them fine.'},
+     {txt:'These are not valuable coins',fb:'You taught the robot what coins look like — these are real coins, so how can they have no value?'},
+     {txt:'It has not seen these coin designs before',ok:true,fb:'Right — the robot has no examples of these designs yet, so it cannot tell their value.'}],
+    (c,ok)=>{TRACK.reflection_choice={firstChoice:c,correct:ok};});
+  // glow + arrow on the Unsure box, then tap to inspect the coins
   const tray=$('#tray-unsure');
-  tray.classList.add('glow');
-  const r=tray.getBoundingClientRect(),s=stage.getBoundingClientRect();
-  const sc=s.width/1440;
-  arrowAt($('#ly'),(r.left-s.left)/sc+60,(r.top-s.top)/sc-130);
-  await new Promise(res=>tray.addEventListener('click',res,{once:true}));
-  sfx('click');
+  if(tray){
+    tray.classList.add('glow');
+    const r=tray.getBoundingClientRect(),s=stage.getBoundingClientRect();const sc=s.width/SW();
+    // centre the (90px-wide) arrow over the box and hang it just above the box top, pointing down
+    arrowAt($('#ly'),(r.left-s.left)/sc+(r.width/sc)/2-45,(r.top-s.top)/sc-120);
+    await say(['Let’s look closely at the unsure coins.']);
+    await new Promise(res=>tray.addEventListener('click',res,{once:true}));
+    sfx('click');
+  }
   inspectScene(unsureItems);
 }
 
@@ -1640,7 +1781,7 @@ async function inspectScene(items){
       <div class="viewtick" id="ins-count"></div>
       <div class="chips" id="ins-chips"></div>
     </div>`);
-  const doneBtn=primaryBtn(ly,'Done');doneBtn.disabled=true;
+  const doneBtn=primaryBtn(ly,'Done');doneBtn.disabled=true; // bottom-centre via .primary
   let idx=0;const viewed=new Set();
   function render(){
     const it=items[idx];viewed.add(it.key);
@@ -1666,15 +1807,33 @@ async function inspectScene(items){
   TRACK.current_state='reflection_conclusion';
   setRobot('neutral');
   // robot glides to the centre of the screen
-  robotEl.style.right='auto';robotEl.style.left='calc(50% - 95px)';robotEl.style.top='230px';
-  robotEl.style.width='190px';robotEl.style.height='236px';
+  robotEl.style.right='auto';robotEl.style.left='calc(50% - 125px)';robotEl.style.top='150px';
+  robotEl.style.width='250px';robotEl.style.height='310px'; // larger robot; sits above the (lowered) popup
   await sleep(900);
-  const ly2=$('#ly');
-  const retrain=primaryBtn(ly2,'Retrain Robot','btn-retrain');
-  retrain.style.left='calc(50% - 110px)';retrain.style.right='auto';retrain.style.bottom='auto';retrain.style.top='600px';
-  retrain.classList.add('glowbtn');
-  arrowAt(ly2,'calc(50% - 45px)',480); // down-pointing arrow onto the Retrain button
-  await waitBtn(retrain);
+  whatToDo(items);
+}
+
+/* After inspecting: "What should we do now?" — 2 options.
+   1) Retrain and show more coins → praise → L3.
+   2) Test the same coins again → the same 4 still go to Unsure (nothing was taught) →
+      robot admits it, we explain it must retrain, then proceed to L3. */
+async function whatToDo(items){
+  TRACK.current_state='what_should_we_do';
+  const choice=await popup(`<h3>What should we do now?</h3>
+    <div class="row" style="flex-direction:column;align-items:center;gap:12px">
+      <button class="pbtn amber" data-val="retrain" style="max-width:540px;width:100%">Retrain the robot and show more coins</button>
+      <button class="pbtn gray" data-val="again" style="max-width:540px;width:100%">Test the same coins again</button>
+    </div>`,{top:510});
+  TRACK.level2_what_to_do=choice;
+  if(choice==='retrain'){
+    setRobot('happy');
+    await say(['Good decision! The robot needs examples of these new designs before it can recognise them.']);
+  }else{
+    await runL2Sort(['Let’s test the same coins again.']); // nothing new taught → same 4 go to Unsure
+    setRobot('unsure');
+    await say(['I am still unsure. Did I learn anything new before trying again?']);
+    await say(['The robot has not learned these new coin designs. Let’s retrain it.']);
+  }
   l3Training();
 }
 
@@ -1683,27 +1842,35 @@ async function l3Training(){
   await trainingScene({
     phaseIdx:6,sceneCls:'room',bgFile:'bg-sorting-room.png',
     question:'Retrain robot with more coins',
-    deck:L3_TRAIN,minCards:26,continueMode:true,continueLabel:'Continue',
+    // 16 = 2 familiar (per denom) + the 4 unsure designs from the L2 test + 1 new design/denom
+    deck:shuffle(L3_FAM_K.concat(L2_NEW_K,L3_NEW_K).map(C)),
     buttons:DENOMS.map(d=>({label:'₹'+d,value:String(d),cls:'denom',color:DCOLOR[d]})),
     model:valueModel,labelStore:TRACK.level3_retraining_labels,trainPhase:'retrain',
     introLines:['The value stayed the same, but the coin designs changed.',
                 'Let’s show the robot more kinds of each coin.']
   });
-  const ly=$('#ly');
   finalTestIntro();
 }
 
 async function finalTestIntro(){
   TRACK.current_state='final_test';
+  const knownK=L3_FAM_K.concat(L2_NEW_K,L3_NEW_K); // the 16 designs taught in L3
+  const newK=L3_TESTNEW_K;                          // 4 brand-new designs (1/denom)
+  const newSet=new Set(newK);
+  const deck=shuffle(knownK.concat(newK).map(C));   // 20 total
   const results=await testScene({
     phaseIdx:6,sceneCls:'test',bgFile:'bg-sorting-room.png',
-    deck:FINAL_TEST,
-    trays:VALUE_TRAYS.concat([{id:'unsure',label:'Unsure ?',color:'#7A5A17',cls:'unsure',art:'box-unsure.png'}]),
+    deck,
+    trays:VALUE_TRAYS.concat([UNSURE_TRAY]),
     runLabel:'Run Final Test',showcase:true,
     introLines:['You gave the robot more varied training data.',
                 'Do you think the robot will now recognise more coin designs?','Let’s watch.'],
     predict(item){
-      const p=valueModel.predict(item.key);
+      let p=valueModel.predict(item.key);
+      // Simulated generalisation: after the richer, more varied training the robot now
+      // recognises the new designs too, sorting them by their true value — no coin is
+      // left Unsure in the final test. (Documented simplification, not real vision.)
+      if(!p&&newSet.has(item.key))p=String(item.denom);
       if(p)return{tray:'d'+p,kind:'good',chip:'₹'+p};
       return{tray:'unsure',kind:'warn',chip:'?',firstUnsureLine:['“I still need help with this design.”']};
     }
@@ -1764,31 +1931,25 @@ async function closingScene(){
        <img class="cutout" src="Visuals/sorted%20coin%20box.png" data-fb="${boxSVG('sorted')}" alt="Sorted coin box"></div>
      <div class="sellerbox" id="cl-seller">
        <img class="cutout" src="Visuals/seller-happy.png" data-fb="${sellerSVG('happy')}" alt="Happy fruit seller"></div>
-     <div class="badge"><img src="Visuals/badge-complete.png" data-fb="${badgeSVG()}" style="width:200px" alt="Completion badge"></div>`);
-  dioramaRelayout=()=>{layoutStallSeller('cl-seller',300);layoutStallBox('cl-box',815,632,300);};
+     <div class="badge"><img src="Visuals/badge-complete.png" data-fb="${badgeSVG()}" style="width:200px" alt="Completion badge"></div>
+     <div class="headline">Mission complete!</div>
+     <div id="cl-msg" style="position:absolute;top:134px;left:50%;transform:translateX(-50%);width:1040px;max-width:94%;
+       text-align:center;font-size:29px;font-weight:700;color:#FFF3D6;line-height:1.35;
+       text-shadow:0 2px 8px rgba(0,0,0,.8);z-index:12">You trained the robot — it learns from the examples you choose.</div>`);
+  const btn=primaryBtn(ly,'Play Again','btn-finish');
+  btn.onclick=()=>location.reload();
+  dioramaRelayout=()=>{
+    layoutStallSeller('cl-seller',300);
+    layoutStallBox('cl-box',815,632,300);
+    // Play Again sits just below the coin box; .primary already centres it horizontally
+    // (left:0/right:0 + margin auto), so we only move it down — no transform to fight the hover lift.
+    const boxBottom=mapStall(815,632).y;
+    btn.style.bottom='auto';btn.style.top=(boxBottom+24)+'px';
+  };
   dioramaRelayout();
   const clb=$('#cl-box img');if(clb)clb.onload=()=>dioramaRelayout();
   addRobot(ly,{right:150,y:330,w:290,state:'celebrating'});
   confettiBurst();sfx('celebrate');
-  await say(['You trained the robot to find coins and sort their values.',
-             'When new designs appeared, you checked the results and retrained it.',
-             'The robot learns from the examples people choose.',
-             'What kind of examples would you show the robot next?']);
-  const ly2=$('#ly');
-  const fin=primaryBtn(ly2,'Finish Mission','btn-finish');
-  fin.onclick=()=>{sfx('click');finishScene();};
-}
-
-
-async function finishScene(){
-  const ly=scene('stall','bg-fruit-stall.png');
-  ly.insertAdjacentHTML('beforeend',
-    `<div class="badge" style="top:150px"><img src="Visuals/badge-complete.png" data-fb="${badgeSVG()}" style="width:230px" alt="badge"></div>
-     <div class="headline" style="top:430px">Mission complete!</div>
-     <div style="position:absolute;top:510px;width:100%;text-align:center;font-size:26px;opacity:.9">
-       You trained, tested, inspected, and improved a robot.<br>Remember: the robot learns from the examples people choose.</div>`);
-  const btn=primaryBtn(ly,'Play Again');
-  btn.onclick=()=>location.reload();
 }
 
 /* ---------------- boot ---------------- */
