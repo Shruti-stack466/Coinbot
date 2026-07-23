@@ -22,11 +22,17 @@
   *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
   html,body{margin:0;height:100%;background:#050D16;overflow:hidden;
     font-family:"Trebuchet MS","Segoe UI",Verdana,sans-serif;color:#fff;}
-  #topbar{position:fixed;top:0;left:0;right:0;height:48px;background:#0E7C8C;
-    display:flex;align-items:center;gap:14px;padding:0 16px;z-index:50;
-    box-shadow:0 2px 8px rgba(0,0,0,.35);}
-  #topbar .logo{font-weight:700;letter-spacing:.4px;font-size:15px;white-space:nowrap;}
-  #topbar .logo span{color:#FFD98A;}
+  #topbar{position:fixed;top:6px;left:10px;right:10px;height:54px;background:#0E7C8C;
+    display:flex;align-items:center;gap:14px;padding:0 16px;z-index:50;border-radius:27px;
+    box-shadow:0 3px 10px rgba(0,0,0,.38);}
+  #topbar .logo{font-weight:700;display:flex;flex-direction:row;align-items:center;gap:9px;white-space:nowrap;}
+  #topbar .logo .coinico{flex:none;filter:drop-shadow(0 1px 2px rgba(0,0,0,.35));}
+  #topbar .logo .ltext{display:flex;flex-direction:column;line-height:1.04;}
+  #topbar .logo .l-name{color:#fff;font-size:19px;letter-spacing:.4px;}
+  #topbar .logo .l-tag{color:#35DCF0;font-size:14px;letter-spacing:.6px;
+    text-shadow:0 0 7px rgba(53,220,240,.8),0 0 3px rgba(53,220,240,.9);}
+  /* counter + back button now live inside the top bar (right side, before settings) */
+  #bartools{display:flex;align-items:center;gap:10px;}
   #phasedots{display:flex;gap:6px;align-items:center;background:rgba(255,255,255,.18);
     border-radius:999px;padding:5px 10px;margin:0 auto;}
   .pdot{width:11px;height:11px;border-radius:50%;border:2px solid #fff;opacity:.45;transition:.3s;}
@@ -40,7 +46,7 @@
   #topbar.video-mode .logo{visibility:hidden;}
   #topbar.video-mode #settingsBtn{display:none;}
   /* Pause/Settings menu (§8): a single top-bar control that opens sound + restart in one place */
-  #settingsBtn{width:38px;height:38px;padding:0;font-size:20px;line-height:1;border-radius:10px;}
+  #settingsBtn{width:38px;height:38px;padding:0;font-size:20px;line-height:1;border-radius:11px;}
   #settingsOv{background:rgba(5,12,20,.55);}
   #settingsOv .panel{min-width:320px;}
   #settingsOv .row{flex-direction:column;align-items:stretch;gap:14px;}
@@ -198,8 +204,13 @@
   #homeStart:disabled::after{animation:none;box-shadow:none;}
   .label-btn{position:static;background:#fff;color:#2A3742;font-size:26px;padding:16px 30px;
     min-width:170px;display:flex;align-items:center;gap:10px;justify-content:center;}
+  /* Coin / Not-Coin tabs (not the value denom tabs): 20% larger, rounded-rectangle */
+  .label-btn:not(.denom){font-size:31px;padding:19px 36px;min-width:204px;border-radius:26px;
+    background:#55C43A;color:#fff;
+    box-shadow:0 4px 14px rgba(0,0,0,.3),0 0 16px rgba(85,196,58,.6);} /* Coin tab → parrot green + glow */
   .label-btn .ic{font-size:24px;}
-  .label-btn.reject{background:#E76A66;color:#fff;}
+  .label-btn.reject{background:#FF2E2E;color:#fff;
+    box-shadow:0 4px 14px rgba(0,0,0,.3),0 0 16px rgba(255,46,46,.6);} /* Not-Coin tab → bright red + glow */
   .label-btn.flash{background:var(--good) !important;color:#fff !important;}
   .label-btn.denom{min-width:130px;flex-direction:column;gap:2px;padding:12px 24px;}
   .label-btn.denom small{font-size:13px;font-weight:400;opacity:.75;}
@@ -218,7 +229,7 @@
   .brackets i:nth-child(4){right:-16px;bottom:-16px;border-left:none;border-top:none;}
   .card{position:absolute;width:340px;height:410px;left:30px;top:20px;background:#FAF8F3;
     border-radius:8px;box-shadow:0 10px 28px rgba(0,0,0,.5);padding:22px 22px 60px;z-index:2;}
-  .card .ph{width:100%;height:100%;background:#111;border-radius:4px;
+  .card .ph{width:100%;height:100%;background:#D0D5DA;border-radius:4px;
     display:flex;align-items:center;justify-content:center;overflow:hidden;box-shadow:inset 0 1px 6px rgba(0,0,0,.5);}
   .card img{max-width:82%;max-height:82%;}
   .card.enter{animation:cardIn .45s ease both;}
@@ -249,7 +260,7 @@
   .qcard{position:absolute;width:230px;height:280px;background:#FAF8F3;
     border-radius:8px;padding:14px 14px 38px;z-index:1;
     box-shadow:0 8px 20px rgba(0,0,0,.4);}
-  .qcard .ph{width:100%;height:100%;background:#111;border-radius:4px;
+  .qcard .ph{width:100%;height:100%;background:#D0D5DA;border-radius:4px;
     display:flex;align-items:center;justify-content:center;overflow:hidden;box-shadow:inset 0 1px 6px rgba(0,0,0,.5);}
   .qcard img{max-width:80%;max-height:80%;}
 
@@ -276,13 +287,16 @@
     border-top:0;border-bottom:500px solid rgba(120,220,235,.12);pointer-events:none;}
 
   /* ---------- counters, trays ---------- */
-  #counter{position:absolute;right:88px;top:12px;background:#0B1622;border-radius:999px;
-    display:flex;align-items:center;gap:10px;padding:8px 20px;font-size:26px;color:#7BE3A8;
-    box-shadow:0 3px 12px rgba(0,0,0,.4);z-index:20;}
-  #counter .cardic{width:24px;height:30px;border:3px solid #fff;border-radius:3px;background:#22303C;}
-  #undoBtn{position:absolute;right:14px;top:12px;width:54px;height:54px;border-radius:50%;
-    background:#C4CCD2;border:none;font-size:26px;cursor:pointer;z-index:20;color:#33414D;
-    box-shadow:0 3px 12px rgba(0,0,0,.4);}
+  /* ---------- counters, trays ---------- */
+  #counter{background:transparent;border-radius:13px;
+    display:flex;align-items:center;gap:9px;padding:5px 10px;font-size:23px;color:#fff;}
+  /* mini polaroid: white frame, light-gray photo well, thicker bottom border */
+  #counter .cardic{width:22px;height:28px;border:2px solid #fff;border-radius:3px;background:#fff;
+    box-shadow:0 1px 3px rgba(0,0,0,.45);padding:2px 2px 6px;display:flex;}
+  #counter .cardic::after{content:"";flex:1;background:#D0D5DA;border-radius:2px;}
+  #undoBtn{width:40px;height:40px;border-radius:12px;
+    background:transparent;border:none;font-size:22px;cursor:pointer;color:#fff;
+    display:flex;align-items:center;justify-content:center;padding:0;}
   #undoBtn:disabled{opacity:.4;cursor:default;}
 
   #trayrow{position:absolute;left:0;bottom:36px;width:100%;display:flex;justify-content:center;
@@ -489,8 +503,16 @@
 </head>
 <body>
 <header id="topbar">
-  <div class="logo">🪙 Coin<span>Bot</span> · <span>Sort Smarter</span></div>
+  <div class="logo">
+    <svg class="coinico" width="30" height="30" viewBox="0 0 32 32" aria-hidden="true">
+      <circle cx="16" cy="16" r="15" fill="#F6C64B" stroke="#D89A2A" stroke-width="2"/>
+      <circle cx="16" cy="16" r="11" fill="none" stroke="#E0A93A" stroke-width="1.5"/>
+      <text x="16" y="21.5" text-anchor="middle" font-size="15" font-weight="700" fill="#8A5A12" font-family="Georgia,'Times New Roman',serif">₹</text>
+    </svg>
+    <span class="ltext"><span class="l-name">CoinBot</span><span class="l-tag">Sort Smarter</span></span>
+  </div>
   <div id="phasedots"></div>
+  <div id="bartools"></div>
   <button class="tbtn" id="settingsBtn" title="Menu" aria-label="Open menu">⚙</button>
 </header>
 <div id="stagewrap"><div id="bgwall"></div><div id="stage"></div></div>
@@ -989,6 +1011,7 @@ function say(lines,opts={}){
 function scene(cls,bgFile){
   stopTalk();robotEl=null;dioramaRelayout=null;bubbleBottom=null;
   $('#topbar').classList.remove('video-mode','home-hidden'); // normal teal bar on every scene except home/video
+  $('#bartools').innerHTML=''; // counter/back button only appear during training scenes
   $('#stagewrap').style.top='48px'; // sits below the bar again (home lifts it to 0)
   const wall=$('#bgwall');
   wall.className='scene-'+cls;
@@ -1073,9 +1096,11 @@ async function trainingScene(cfg){
   ly.insertAdjacentHTML('beforeend',`<div class="headline">${cfg.question}</div>`);
   addRobot(ly,{right:48,y:300,w:340,state:'neutral'});
   robotEl.style.right='calc(48px + 14%)';robotEl.style.left='auto'; // nudge the robot 14% toward centre
+  // counter + back button live in the top bar (#bartools), not over the stage
+  $('#bartools').innerHTML=
+    `<button id="undoBtn" title="Undo last label" disabled>↩</button>
+     <div id="counter"><div class="cardic"></div><span id="cnum">0</span></div>`;
   ly.insertAdjacentHTML('beforeend',`
-    <div id="counter"><div class="cardic"></div><span id="cnum">0</span></div>
-    <button id="undoBtn" title="Undo last label" disabled>↩</button>
     <div class="qcard" id="q2" style="visibility:hidden;left:calc(50% - 950px);top:305px;opacity:.6"><div class="ph"></div></div>
     <div class="qcard" id="q1" style="visibility:hidden;left:calc(50% - 710px);top:305px;opacity:.82"><div class="ph"></div></div>
     <div class="qcard" id="q0" style="visibility:hidden;left:calc(50% - 470px);top:305px"><div class="ph"></div></div>
